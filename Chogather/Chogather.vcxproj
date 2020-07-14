@@ -70,19 +70,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)..\..\include;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>$(SolutionDir)..\..\include;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)..\..\include;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(SolutionDir)..\..\include;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)..\..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -143,10 +143,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragmentShader.fs" />
+    <None Include="Shaders\vertexShader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
