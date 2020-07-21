@@ -2,7 +2,6 @@
 #define TEXTUREMANAGER_H
 
 #include <glad/glad.h>
-#include <string>
 class Texture2D
 {
 public:
@@ -17,7 +16,7 @@ public:
 	unsigned int Filter_Max;
 	Texture2D();
 	Texture2D(unsigned int internal_format, unsigned int image_format, unsigned int wrap_s, unsigned int wrap_t, unsigned int filter_min, unsigned int filter_max);
-	void Generate(const char* name);
+	void Generate(const char* path);
 	void Bind() const;
 };
 

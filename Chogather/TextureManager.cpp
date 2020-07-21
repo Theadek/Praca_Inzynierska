@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include "TextureManager.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -31,11 +30,11 @@ Texture2D::Texture2D(unsigned int internal_format = GL_RGB, unsigned int image_f
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Texture2D::Generate(const char* name)
+void Texture2D::Generate(const char* path)
 {
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(name, &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 	this->Width = width;
 	this->Height = height;
 	glBindTexture(GL_TEXTURE_2D, this->ID);
