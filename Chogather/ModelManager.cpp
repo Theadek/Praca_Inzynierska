@@ -18,6 +18,7 @@ bool Model::loadobj(string path)
     ifstream file(path);
     string line, mtl_path, prefix;
     stringstream ss;
+    Mesh* mesh = nullptr;
     while (getline(file, line)) {
         ss.clear();
         ss.str(line);
@@ -40,6 +41,7 @@ bool Model::loadobj(string path)
         else if (prefix == "mtllib") {
             ss >> mtl_path;
             mtl_path = "Models/" + mtl_path;
+            this->loadmtl(mtl_path);
         }
         else if (prefix == "f") {
             line.erase(std::remove(line.begin(), line.end(), 'f'), line.end());
@@ -70,9 +72,53 @@ bool Model::loadobj(string path)
                 }
             }
         }
+        else if (prefix == "usemtl") {
+            string material_name;
+            ss >> material_name;
+
+            for (std::vector<Material>::iterator it = this->materials.begin(); it != this->materials.end(); it++) {
+                if (it->name == material_name) {
+                    mesh->material = *it;
+                }
+            }
+        }
+        else if (prefix == "o") {
+            if (mesh == nullptr) {
+                mesh = new Mesh();
+            }
+            else {
+                for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+                    unsigned int vertexIndex = vertexIndices[i];
+                    if (vertexIndex > temp_vertices.size()) {
+                        printf("");
+                    }
+                    glm::vec3 vertex = temp_vertices[vertexIndex - 1];
+                    mesh->vertices.push_back(vertex);
+                }
+                for (unsigned int i = 0; i < uvIndices.size(); i++) {
+                    unsigned int uvIndex = uvIndices[i];
+                    glm::vec2 uv = temp_uvs[uvIndex - 1];
+                    mesh->texture_coordinates.push_back(uv);
+                }
+                for (unsigned int i = 0; i < normalIndices.size(); i++) {
+                    unsigned int normalIndex = normalIndices[i];
+                    glm::vec3 normal = temp_normals[normalIndex - 1];
+                    mesh->normals.push_back(normal);
+                }
+                this->meshes.push_back(*mesh);
+                vertexIndices.clear();
+                uvIndices.clear();
+                normalIndices.clear();
+                /*temp_vertices.clear();
+                temp_uvs.clear();
+                temp_normals.clear();*/
+                mesh = new Mesh();
+            }
+
+        }
     }
 
-    for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+    /*for (unsigned int i = 0; i < vertexIndices.size(); i++) {
         unsigned int vertexIndex = vertexIndices[i];
         glm::vec3 vertex = temp_vertices[vertexIndex - 1];
         this->vertices.push_back(vertex);
@@ -86,9 +132,8 @@ bool Model::loadobj(string path)
         unsigned int normalIndex = normalIndices[i];
         glm::vec3 normal = temp_normals[normalIndex - 1];
         this->normals.push_back(normal);
-    }
+    }*/
     file.close();
-    this->loadmtl(mtl_path);
     return true;
 }
 
