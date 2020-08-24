@@ -28,7 +28,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 
-Model cubeModel = Model();
+Model objModel = Model();
 Renderer *renderer = nullptr;
 
 int main()
@@ -111,7 +111,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-    ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
+    /*ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
     unsigned int lightVBO, lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glGenBuffers(1, &lightVBO);
@@ -125,11 +125,11 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(2);*/
 
     ShaderManager ourShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
     renderer = new Renderer();
-    bool res = cubeModel.loadobj("Models/backpack.obj");
+    bool res = objModel.loadobj("Models/backpack.obj");
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -155,7 +155,7 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
-        lightShader.use();
+        /*lightShader.use();
         lightShader.setVec3("viewPos", camera.Position);
         lightShader.setMat4("projection", projection);
         lightShader.setMat4("view", view);
@@ -164,15 +164,15 @@ int main()
         lightShader.setMat4("model", model);
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        glBindVertexArray(0);*/
 
-        cubeModel.position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        objModel.position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
         ourShader.use();
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
         ourShader.setVec3("viewPos", camera.Position);
         ourShader.setVec3("lightPosition", lightPos);
-        renderer->RenderModel(cubeModel, ourShader);
+        renderer->RenderModel(objModel, ourShader);
 
 
         glfwSwapBuffers(window);
