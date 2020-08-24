@@ -6,7 +6,7 @@ class Renderer
 {
 public:
     Renderer();
-    void RenderModel(Model model, ShaderManager shader, glm::vec3 position, glm::vec3 size, float rotate);
+    void RenderModel(Model model, ShaderManager shader);
 private:
     GLuint VAO;
 };

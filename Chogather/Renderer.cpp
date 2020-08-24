@@ -6,7 +6,7 @@ Renderer::Renderer() {
     glGenVertexArrays(1, &this->VAO);
 }
 
-void Renderer::RenderModel(Model model, ShaderManager shader, glm::vec3 position, glm::vec3 size, float rotate) {
+void Renderer::RenderModel(Model model, ShaderManager shader) {
     //unsigned int VBO;
     //glGenBuffers(1, &VBO);
     //glGenVertexArrays(1, &this->VAO);
@@ -42,7 +42,7 @@ void Renderer::RenderModel(Model model, ShaderManager shader, glm::vec3 position
     //shader.setMat4("model", model_matrix);
     //glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
     for (int i = 0; i < model.meshes.size(); i++) {
-        model.meshes[i].RenderMesh(this->VAO, shader, position, size, rotate);
+        model.meshes[i].RenderMesh(this->VAO, shader, model.position, model.size, model.rotate);
     }
 }
 

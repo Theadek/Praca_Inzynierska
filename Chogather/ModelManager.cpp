@@ -7,7 +7,9 @@
 using namespace std;
 
 Model::Model() {
-
+    this->position = glm::vec3(1.0f, 1.0f, 1.0f);
+    this->size = glm::vec3(1.0f, 1.0f, 1.0f);
+    this->rotate = 0.0f;
 }
 bool Model::loadobj(string path)
 {
@@ -148,8 +150,16 @@ void Model::loadmtl(string path) {
         ss >> prefix;
         if (prefix == "newmtl") {
             ss >> material_name;
-            material = new Material();
-            material->name = material_name;
+            if (material == nullptr) {
+                material = new Material();
+                material->name = material_name;
+            }
+            else {
+                this->materials.push_back(*material);
+                material = new Material();
+                material->name = material_name;
+                prefix = "";
+            }
 
         }
         else if (prefix == "Ka") {
@@ -184,6 +194,9 @@ void Model::loadmtl(string path) {
             material = nullptr;
             prefix = "";
         }
+    }
+    if (material != nullptr) {
+        this->materials.push_back(*material);
     }
     mtlfile.close();
 }
