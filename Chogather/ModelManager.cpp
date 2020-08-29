@@ -10,6 +10,10 @@ Model::Model() {
     this->position = glm::vec3(1.0f, 1.0f, 1.0f);
     this->size = glm::vec3(1.0f, 1.0f, 1.0f);
     this->rotate = 0.0f;
+    glGenVertexArrays(1, &this->VAO);
+}
+Model::~Model() {
+    glDeleteVertexArrays(1, &this->VAO);
 }
 bool Model::loadobj(string path)
 {
@@ -18,7 +22,9 @@ bool Model::loadobj(string path)
     vector<glm::vec2> temp_uvs;
     vector<glm::vec3> temp_normals;
     ifstream file(path);
-    string line, mtl_path, prefix;
+    string line, mtl_path, prefix, mtl_prefix;
+    int pos = path.find_last_of("/");
+	mtl_prefix = path.substr(0, pos);
     stringstream ss;
     Mesh* mesh = nullptr;
     while (getline(file, line)) {
@@ -42,7 +48,7 @@ bool Model::loadobj(string path)
         }
         else if (prefix == "mtllib") {
             ss >> mtl_path;
-            mtl_path = "Models/" + mtl_path;
+            mtl_path = mtl_prefix + '/' + mtl_path;
             this->loadmtl(mtl_path);
         }
         else if (prefix == "f") {
@@ -91,9 +97,6 @@ bool Model::loadobj(string path)
             else {
                 for (unsigned int i = 0; i < vertexIndices.size(); i++) {
                     unsigned int vertexIndex = vertexIndices[i];
-                    if (vertexIndex > temp_vertices.size()) {
-                        printf("");
-                    }
                     glm::vec3 vertex = temp_vertices[vertexIndex - 1];
                     mesh->vertices.push_back(vertex);
                 }
@@ -107,43 +110,27 @@ bool Model::loadobj(string path)
                     glm::vec3 normal = temp_normals[normalIndex - 1];
                     mesh->normals.push_back(normal);
                 }
-                this->meshes.push_back(*mesh);
+                mesh->fillVBO();
+                this->meshes.push_back(mesh);
                 vertexIndices.clear();
                 uvIndices.clear();
                 normalIndices.clear();
-                /*temp_vertices.clear();
-                temp_uvs.clear();
-                temp_normals.clear();*/
                 mesh = new Mesh();
             }
 
         }
     }
-
-    /*for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-        unsigned int vertexIndex = vertexIndices[i];
-        glm::vec3 vertex = temp_vertices[vertexIndex - 1];
-        this->vertices.push_back(vertex);
-    }
-    for (unsigned int i = 0; i < uvIndices.size(); i++) {
-        unsigned int uvIndex = uvIndices[i];
-        glm::vec2 uv = temp_uvs[uvIndex - 1];
-        this->texture_coordinates.push_back(uv);
-    }
-    for (unsigned int i = 0; i < normalIndices.size(); i++) {
-        unsigned int normalIndex = normalIndices[i];
-        glm::vec3 normal = temp_normals[normalIndex - 1];
-        this->normals.push_back(normal);
-    }*/
     file.close();
     return true;
 }
 
 void Model::loadmtl(string path) {
     ifstream mtlfile(path);
-    string line, prefix, material_name, texture_name;
+    string line, prefix, material_name, texture_name, mtl_prefix;
     stringstream ss;
     Material *material = nullptr;
+	int pos  = path.find_last_of("/");
+	mtl_prefix = path.substr(0, pos);
     while (getline(mtlfile, line)) {
         ss.clear();
         ss.str(line);
@@ -179,14 +166,21 @@ void Model::loadmtl(string path) {
         }
         else if (prefix == "map_Kd") {
             ss >> texture_name;
-            texture_name = "Models/" + texture_name;
+            texture_name = mtl_prefix + "/" + texture_name;
             Texture2D tex = Texture2D();
             tex.Generate(texture_name.c_str());
             material->diffuseTexture = tex;
+        } 
+        else if (prefix == "map_Bump") {
+			ss >> texture_name;
+			texture_name = mtl_prefix + "/" + texture_name;
+			Texture2D tex = Texture2D();
+			tex.Generate(texture_name.c_str());
+			material->bumpTexture = tex;
         }
         else if (prefix == "map_Ks") {
             ss >> texture_name;
-            texture_name = "Models/" + texture_name;
+            texture_name = mtl_prefix + "/" + texture_name;
             Texture2D tex = Texture2D();
             tex.Generate(texture_name.c_str());
             material->specularTexture = tex;
@@ -199,4 +193,14 @@ void Model::loadmtl(string path) {
         this->materials.push_back(*material);
     }
     mtlfile.close();
+}
+
+void Model::renderModel(ShaderManager* shader) {
+	shader->use();
+	glBindVertexArray(this->VAO);
+	for (int i = 0; i < this->meshes.size(); i++) {
+		this->meshes[i]->RenderMesh(shader, this->position, this->size, this->rotate);
+	}
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

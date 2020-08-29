@@ -8,7 +8,10 @@ public:
     std::vector< glm::vec3 > vertices;
     std::vector< glm::vec2 > texture_coordinates;
     std::vector< glm::vec3 > normals;
+    GLuint VBO;
     Material  material;
     Mesh();
-    void RenderMesh(GLuint VAO, ShaderManager shader, glm::vec3 position, glm::vec3 size, float rotate);
+    ~Mesh();
+    void RenderMesh(ShaderManager *shader, glm::vec3 position, glm::vec3 size, float rotate);
+    void fillVBO();
 };

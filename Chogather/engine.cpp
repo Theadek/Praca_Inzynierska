@@ -5,13 +5,12 @@
 #include "TextureManager.h"
 #include "Camera.h"
 #include "ModelManager.h"
-#include "Renderer.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 //light
-glm::vec3 lightPos(2.2f, -1.0f, -2.0f);
+glm::vec3 lightPos(2.2f, 2.0f, -2.0f);
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -28,8 +27,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 
-Model objModel = Model();
-Renderer *renderer = nullptr;
+Model *objModel = nullptr;
 
 int main()
 {
@@ -111,7 +109,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-    /*ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
+    ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
     unsigned int lightVBO, lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glGenBuffers(1, &lightVBO);
@@ -125,11 +123,14 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);*/
+    glEnableVertexAttribArray(2);
 
     ShaderManager ourShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
-    renderer = new Renderer();
-    bool res = objModel.loadobj("Models/backpack.obj");
+    objModel = new Model();
+    bool res = objModel->loadobj("Models/backpack/backpack.obj");
+    if (res != true) {
+        return -1;
+    }
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -151,28 +152,35 @@ int main()
 
         //lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
         //lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
-
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
-        /*lightShader.use();
-        lightShader.setVec3("viewPos", camera.Position);
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        lightShader.setMat4("model", model);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);*/
-
-        objModel.position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+		lightShader.use();
+		lightShader.setMat4("projection", projection);
+		lightShader.setMat4("view", view);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		lightShader.setMat4("model", model);
+		glBindVertexArray(lightVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+        objModel->position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+        //std::cout << "Third:" << glGetError() << std::endl;
         ourShader.use();
+        //std::cout << "4th:" << glGetError() << std::endl;
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
         ourShader.setVec3("viewPos", camera.Position);
         ourShader.setVec3("lightPosition", lightPos);
-        renderer->RenderModel(objModel, ourShader);
+        objModel->renderModel(&ourShader);
 
 
         glfwSwapBuffers(window);

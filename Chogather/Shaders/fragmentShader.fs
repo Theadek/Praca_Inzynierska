@@ -6,6 +6,7 @@ in vec3 FragPos;
 
 uniform sampler2D diffuse_tex;
 uniform sampler2D specular_tex;
+uniform sampler2D bump_tex;
 uniform vec3 viewPos;
 uniform vec3 lightPosition;
 uniform vec3 ambientModel;
@@ -24,7 +25,8 @@ void main()
 {
 
        vec3 ambient = lightAmbient * texture(diffuse_tex, TexCoords).rgb;
-       vec3 norm = normalize(Normals);
+       vec3 norm = texture(bump_tex, TexCoords).rgb;
+       norm = normalize(norm * 2.0 - 1.0);
        vec3 lightDir = normalize(lightPosition - FragPos);
        float diff = max(dot(norm, lightDir), 0.0);
        vec3 diffuse = lightDiffuse * diff * texture(diffuse_tex, TexCoords).rgb;
