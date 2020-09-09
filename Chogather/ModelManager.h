@@ -5,20 +5,18 @@
 #include <string>
 #include "Material.h"
 #include "Mesh.h"
+#include "Object.h"
 class Model
 {
 public:
     std::vector< Material > materials;
     std::vector< Mesh *> meshes;
-    glm::vec3 position;
-    glm::vec3 size;
-    GLfloat rotate;
     GLuint VAO;
     Model();
     ~Model();
     bool loadobj(std::string path);
-    void loadmtl(std::string path);
-    void renderModel(ShaderManager* shader);
+    bool loadmtl(std::string path);
+    void renderModel(ShaderManager* shader, Object* object);
 };
 
 #endif

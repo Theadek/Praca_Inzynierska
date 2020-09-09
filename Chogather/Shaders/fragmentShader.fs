@@ -52,5 +52,6 @@ void main()
        //vec3 specular = lightSpecular * (spec * specularModel);
        //vec3 result = ambient + diffuse + specular;
        //FragColor = vec4(result, 1.0);
+       //FragColor = vec4(0.5,0.5,0.5, 1.0);
 
 }

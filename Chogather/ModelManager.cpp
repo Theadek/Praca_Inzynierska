@@ -7,9 +7,6 @@
 using namespace std;
 
 Model::Model() {
-    this->position = glm::vec3(1.0f, 1.0f, 1.0f);
-    this->size = glm::vec3(1.0f, 1.0f, 1.0f);
-    this->rotate = 0.0f;
     glGenVertexArrays(1, &this->VAO);
 }
 Model::~Model() {
@@ -17,16 +14,20 @@ Model::~Model() {
 }
 bool Model::loadobj(string path)
 {
+    ifstream file(path);
+    if (!file) {
+        std::cout << "Cannot load this model, bad path: " + path << endl;
+        return false;
+    }
     vector<unsigned int> vertexIndices, uvIndices, normalIndices;
     vector<glm::vec3> temp_vertices;
     vector<glm::vec2> temp_uvs;
     vector<glm::vec3> temp_normals;
-    ifstream file(path);
     string line, mtl_path, prefix, mtl_prefix;
-    int pos = path.find_last_of("/");
-	mtl_prefix = path.substr(0, pos);
     stringstream ss;
     Mesh* mesh = nullptr;
+	int pos = path.find_last_of("/");
+	mtl_prefix = path.substr(0, pos);
     while (getline(file, line)) {
         ss.clear();
         ss.str(line);
@@ -49,7 +50,9 @@ bool Model::loadobj(string path)
         else if (prefix == "mtllib") {
             ss >> mtl_path;
             mtl_path = mtl_prefix + '/' + mtl_path;
-            this->loadmtl(mtl_path);
+            if (!this->loadmtl(mtl_path)) {
+                return false;
+            }
         }
         else if (prefix == "f") {
             line.erase(std::remove(line.begin(), line.end(), 'f'), line.end());
@@ -120,12 +123,38 @@ bool Model::loadobj(string path)
 
         }
     }
+    if (mesh != nullptr) {
+        for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+            unsigned int vertexIndex = vertexIndices[i];
+            glm::vec3 vertex = temp_vertices[vertexIndex - 1];
+            mesh->vertices.push_back(vertex);
+        }
+        for (unsigned int i = 0; i < uvIndices.size(); i++) {
+            unsigned int uvIndex = uvIndices[i];
+            glm::vec2 uv = temp_uvs[uvIndex - 1];
+            mesh->texture_coordinates.push_back(uv);
+        }
+        for (unsigned int i = 0; i < normalIndices.size(); i++) {
+            unsigned int normalIndex = normalIndices[i];
+            glm::vec3 normal = temp_normals[normalIndex - 1];
+            mesh->normals.push_back(normal);
+        }
+        mesh->fillVBO();
+        this->meshes.push_back(mesh);
+        vertexIndices.clear();
+        uvIndices.clear();
+        normalIndices.clear();
+    }
     file.close();
     return true;
 }
 
-void Model::loadmtl(string path) {
+bool Model::loadmtl(string path) {
     ifstream mtlfile(path);
+    if (!mtlfile) {
+        std::cout << "Cannot load this material, bad path: " + path << endl;
+        return false;
+    }
     string line, prefix, material_name, texture_name, mtl_prefix;
     stringstream ss;
     Material *material = nullptr;
@@ -184,22 +213,20 @@ void Model::loadmtl(string path) {
             Texture2D tex = Texture2D();
             tex.Generate(texture_name.c_str());
             material->specularTexture = tex;
-            this->materials.push_back(*material);
-            material = nullptr;
-            prefix = "";
         }
     }
     if (material != nullptr) {
         this->materials.push_back(*material);
     }
+    return true;
     mtlfile.close();
 }
 
-void Model::renderModel(ShaderManager* shader) {
+void Model::renderModel(ShaderManager* shader, Object* object) {
 	shader->use();
 	glBindVertexArray(this->VAO);
 	for (int i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i]->RenderMesh(shader, this->position, this->size, this->rotate);
+		this->meshes[i]->RenderMesh(shader, object->position, object->size, object->rotate);
 	}
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
