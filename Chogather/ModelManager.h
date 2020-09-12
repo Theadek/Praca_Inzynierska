@@ -1,11 +1,15 @@
-#ifndef MODELMANAGER_H
-#define MODELMANAGER_H
+#pragma once
 #include <vector>
 #include <glm/glm.hpp>
 #include <string>
 #include "Material.h"
 #include "Mesh.h"
 #include "Object.h"
+#include "TextureManager.h"
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <algorithm>
 class Model
 {
 public:
@@ -19,5 +23,3 @@ public:
     bool loadmtl(std::string path);
     void renderModel(ShaderManager* shader, Object* object);
 };
-
-#endif

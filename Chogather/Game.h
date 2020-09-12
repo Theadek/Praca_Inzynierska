@@ -1,6 +1,13 @@
 #pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <string>
+#include <map>
+#include "Game.h"
 #include "Camera.h"
 #include "ModelManager.h"
+#include "Object.h"
 class Game
 {
 public:
@@ -14,7 +21,8 @@ public:
     static bool firstMouse;
     static int DEBUG;
     static Camera* camera;
-    std::vector <Model*> models;
+    std::map <std::string, Model*> models;
+    std::vector <Object*> objects;
     Game(unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
     ~Game();
     int init();

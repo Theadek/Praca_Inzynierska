@@ -1,10 +1,4 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <string>
 #include "Game.h"
-#include "Camera.h"
-#include "ModelManager.h"
 
 Camera* Game::camera;
 float Game::lastX;
@@ -30,11 +24,11 @@ void Game::loadModels() {
     Model* cube = new Model();
     cube->loadobj("Models/cube/cube.obj");
     cube->name = "cube";
-    models.push_back(cube);
+    models.insert({ "cube", cube });
     Model* backpack = new Model();
     backpack->loadobj("Models/backpack/backpack.obj");
     backpack->name = "backpack";
-    models.push_back(backpack);
+    models.insert({ "backpack", backpack });
 }
 
 void Game::loadTextures() {

@@ -50,6 +50,7 @@ int main()
     ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
 
     ShaderManager ourShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+
     Object* light = new Object();
     light->position = lightPos;
     light->size = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -103,7 +104,7 @@ int main()
         model = glm::translate(model, lightPos);
         lightShader.setMat4("model", model);
         //for testing
-        game.models[0]->renderModel(&lightShader, light);
+        game.models.find("cube")->second->renderModel(&lightShader, light);
 
         //backpack render
         ourShader.use();
@@ -112,7 +113,7 @@ int main()
         ourShader.setVec3("viewPos", game.camera->Position);
         ourShader.setVec3("lightPosition", light->position);
         //for testing 
-        game.models[1]->renderModel(&ourShader, backpack);
+        game.models.find("cube")->second->renderModel(&ourShader, backpack);
 
         glfwSwapBuffers(game.window);
         glfwPollEvents();
