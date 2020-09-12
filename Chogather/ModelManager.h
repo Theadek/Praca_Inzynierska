@@ -4,7 +4,6 @@
 #include <string>
 #include "Material.h"
 #include "Mesh.h"
-#include "Object.h"
 #include "TextureManager.h"
 #include <fstream>
 #include <string>

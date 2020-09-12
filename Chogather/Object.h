@@ -9,7 +9,7 @@ public:
     glm::vec3 position;
     glm::vec3 size;
     GLfloat rotate;
-    class Model* model;
+    Model* model;
 
     void renderModel(ShaderManager* shader);
 };
