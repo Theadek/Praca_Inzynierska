@@ -21,5 +21,4 @@ public:
     ~Model();
     bool loadobj(std::string path);
     bool loadmtl(std::string path);
-    void renderModel(ShaderManager* shader, Object* object);
 };

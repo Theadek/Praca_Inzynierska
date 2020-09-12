@@ -31,7 +31,7 @@ bool Model::loadobj(string path)
             glm::vec3 vertex;
             ss >> vertex.x >> vertex.y >> vertex.z;
             temp_vertices.push_back(vertex);
-        } 
+        }
         else if (prefix == "vt") {
             glm::vec2 uv;
             ss >> uv.x >> uv.y;
@@ -52,7 +52,7 @@ bool Model::loadobj(string path)
         else if (prefix == "f") {
             line.erase(std::remove(line.begin(), line.end(), 'f'), line.end());
             // model without textures
-            if (line.find("//") != string::npos) { 
+            if (line.find("//") != string::npos) {
                 replace(line.begin(), line.end(), '/', ' ');
                 stringstream ss_face(line);
                 int temp;
@@ -63,7 +63,7 @@ bool Model::loadobj(string path)
                     normalIndices.push_back(temp);
                 }
             }
-            else { 
+            else {
                 //model with textures
                 replace(line.begin(), line.end(), '/', ' ');
                 stringstream ss_face(line);
@@ -194,7 +194,7 @@ bool Model::loadmtl(string path) {
             Texture2D tex = Texture2D();
             tex.Generate(texture_name.c_str());
             material->diffuseTexture = tex;
-        } 
+        }
         else if (prefix == "map_Bump") {
 			ss >> texture_name;
 			texture_name = mtl_prefix + "/" + texture_name;
@@ -215,14 +215,4 @@ bool Model::loadmtl(string path) {
     }
     return true;
     mtlfile.close();
-}
-
-void Model::renderModel(ShaderManager* shader, Object* object) {
-	shader->use();
-	glBindVertexArray(this->VAO);
-	for (int i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i]->RenderMesh(shader, object->position, object->size, object->rotate);
-	}
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

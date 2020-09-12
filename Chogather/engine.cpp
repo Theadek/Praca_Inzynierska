@@ -1,8 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "ShaderManager.h"
 #include "TextureManager.h"
+#include "ShaderManager.h"
 #include "Object.h"
 #include "Game.h"
 #include <string>
@@ -15,12 +15,12 @@ int main()
     game.init();
 
     float background[] = {
-        1.0f, 1.0f, -1.0f, 1.0f, 1.0f,    //right top 
+        1.0f, 1.0f, -1.0f, 1.0f, 1.0f,    //right top
         1.0f, -1.0f, -1.0f, 1.0f, 0.0f,   // right bottom
         -1.0f, -1.0f,-1.0f,  0.0f, 0.0f,  //left bottom
         -1.0f, 1.0f,-1.0f,  0.0f, 1.0f    //left top
     };
-    unsigned int indices[] = { 
+    unsigned int indices[] = {
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
     };
@@ -46,7 +46,7 @@ int main()
     backgroundShader.setInt("texture1", 3);
     glActiveTexture(GL_TEXTURE3);
     backgroundTex.Bind();
-    
+
     ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
 
     ShaderManager ourShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
@@ -104,7 +104,7 @@ int main()
         model = glm::translate(model, lightPos);
         lightShader.setMat4("model", model);
         //for testing
-        game.models.find("cube")->second->renderModel(&lightShader, light);
+        //game.models.find("cube")->second->renderModel(&lightShader, light);
 
         //backpack render
         ourShader.use();
@@ -112,13 +112,12 @@ int main()
         ourShader.setMat4("projection", projection);
         ourShader.setVec3("viewPos", game.camera->Position);
         ourShader.setVec3("lightPosition", light->position);
-        //for testing 
-        game.models.find("cube")->second->renderModel(&ourShader, backpack);
+        //for testing
+        //game.models.find("cube")->second->renderModel(&ourShader, backpack);
 
         glfwSwapBuffers(game.window);
         glfwPollEvents();
     }
 
-    game.~Game();
     return 0;
 }
