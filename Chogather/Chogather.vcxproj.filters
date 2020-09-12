@@ -33,7 +33,7 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Object.cpp">
+    <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +62,11 @@
     <ClInclude Include="Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\fragmentShader.fs" />
-    <None Include="Shaders\vertexShader.vs" />
     <None Include="Shaders\light.fs">
       <Filter>Source Files</Filter>
     </None>
@@ -76,6 +77,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="Shaders\background.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Shaders\fragmentShader.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Shaders\vertexShader.vs">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

@@ -12,6 +12,7 @@ public:
     std::vector< Material > materials;
     std::vector< Mesh *> meshes;
     GLuint VAO;
+    std::string name;
     Model();
     ~Model();
     bool loadobj(std::string path);
