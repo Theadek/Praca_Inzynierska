@@ -14,6 +14,7 @@ Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     this->lastX = SCR_WIDTH / 2;
     this->lastY = SCR_HEIGHT / 2;
     this->DEBUG = 1;
+    this->player = new Hero();
 }
 
 Game::~Game() {
@@ -25,16 +26,25 @@ void Game::loadModels() {
     cube->loadobj("Models/cube/cube.obj");
     cube->name = "cube";
     models.insert({ "cube", cube });
-    Model* backpack = new Model();
+   /*Model* backpack = new Model();
     backpack->loadobj("Models/backpack/backpack.obj");
     backpack->name = "backpack";
-    models.insert({ "backpack", backpack });
+    models.insert({ "backpack", backpack });*/
+    Model* ball = new Model();
+    ball->loadobj("Models/ball/ball.obj");
+    ball->name = "ball";
+    models.insert({ "ball", ball });
 }
 
 void Game::loadTextures() {
-
 }
 
+void Game::loadShaders() {
+    ShaderManager* lightShader = new ShaderManager("Shaders/light.vs", "Shaders/light.fs");
+    shaders.insert({ "lightShader", lightShader });
+    ShaderManager* basicShader = new ShaderManager("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+    shaders.insert({ "basicShader", basicShader });
+}
 
 int Game::init() {
     // glfw: initialize and configure
@@ -65,6 +75,7 @@ int Game::init() {
         return -1;
     }
     loadModels();
+    loadShaders();
 }
 
 void Game::processInput(GLFWwindow* window)
@@ -79,6 +90,14 @@ void Game::processInput(GLFWwindow* window)
         camera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS)
+        player->Move(JUMP, deltaTime);
+    if (glfwGetKey(this->window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        player->Move(CROUCH, deltaTime);
+    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        player->Move(RIGHT_MOVE, deltaTime);
+    if (glfwGetKey(this->window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        player->Move(LEFT_MOVE, deltaTime);
 }
 
 
@@ -105,4 +124,22 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
         camera->ProcessMouseMovement(xoffset, yoffset);
     }
+}
+
+bool Game::detectCollision(Object* hero, Object* terrain) {
+
+    float additionalShiftX = 0, additionalShiftY = 0;
+    if (terrain->scale.y > 1.0f) {
+        additionalShiftY = terrain->scale.y * terrain->model->size.y / 3;
+    }
+    if (terrain->scale.x > 1.0f) {
+        additionalShiftX = terrain->scale.x * terrain->model->size.x / 3;
+    }
+    bool collisionX = (hero->position.x + (hero->scale.x * hero->model->size.x)) >= terrain->position.x + additionalShiftX &&
+        (terrain->position.x + additionalShiftX +(terrain->scale.x * terrain->model->size.x)) >= hero->position.x;
+
+    bool collisionY = (hero->position.y + (hero->scale.y * hero->model->size.y)) >= terrain->position.y - additionalShiftY &&
+        (terrain->position.y - additionalShiftY + (terrain->scale.y * terrain->model->size.y)) >= hero->position.y;
+
+    return collisionX && collisionY;
 }

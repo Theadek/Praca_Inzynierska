@@ -7,7 +7,7 @@ class Object
 {
 public:
     glm::vec3 position;
-    glm::vec3 size;
+    glm::vec3 scale;
     GLfloat rotate;
     Model* model;
 

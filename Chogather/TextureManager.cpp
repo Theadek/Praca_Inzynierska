@@ -16,7 +16,7 @@ Texture2D::Texture2D() {
 	glGenTextures(1, &this->ID);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
-Texture2D::Texture2D(unsigned int internal_format = GL_RGB, unsigned int image_format = GL_RGB, 
+Texture2D::Texture2D(unsigned int internal_format = GL_RGB, unsigned int image_format = GL_RGB,
 	unsigned int wrap_s = GL_REPEAT, unsigned int wrap_t = GL_REPEAT, unsigned int filter_min = GL_LINEAR, unsigned int filter_max = GL_LINEAR)
 {
 	this->Width = 0;

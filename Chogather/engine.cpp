@@ -6,60 +6,30 @@
 #include "Object.h"
 #include "Game.h"
 #include <string>
-
+#include "background.h"
 glm::vec3 lightPos(0.2f, 4.0f, 0.0f);
 Game game = Game(800, 600);
-
 int main()
 {
     game.init();
 
-    float background[] = {
-        1.0f, 1.0f, -1.0f, 1.0f, 1.0f,    //right top
-        1.0f, -1.0f, -1.0f, 1.0f, 0.0f,   // right bottom
-        -1.0f, -1.0f,-1.0f,  0.0f, 0.0f,  //left bottom
-        -1.0f, 1.0f,-1.0f,  0.0f, 1.0f    //left top
-    };
-    unsigned int indices[] = {
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
-    };
-
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(background), background, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    ShaderManager backgroundShader("Shaders/background.vs", "Shaders/background.fs");
-    backgroundShader.use();
-    Texture2D backgroundTex = Texture2D();
-    backgroundTex.Generate("Textures/background.jpg");
-    backgroundShader.setInt("texture1", 3);
-    glActiveTexture(GL_TEXTURE3);
-    backgroundTex.Bind();
-
-    ShaderManager lightShader("Shaders/light.vs", "Shaders/light.fs");
-
-    ShaderManager ourShader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+    Background background = Background();
 
     Object* light = new Object();
     light->position = lightPos;
-    light->size = glm::vec3(1.0f, 1.0f, 1.0f);
+    light->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     light->rotate = 0.0f;
+    light->model = game.models.find("cube")->second;
 
-    Object* backpack = new Object();
-    backpack->position = glm::vec3(1.0f, 0.0f, -2.0f);
-    backpack->size = glm::vec3(1.0f, 1.0f, 1.0f);
-    backpack->rotate = 0.0f;
+    Object* floor = new Object();
+    floor->position = glm::vec3(2.0f, 0.0f, 0.0f);
+    floor->rotate = 0.0f;
+    floor->scale = glm::vec3(2.0f, 3.0f, 1.0f);
+    floor->model = game.models.find("cube")->second;
+    game.player->hero->model = game.models.find("cube")->second;
+
+
+    game.objects.push_back(floor);
 
     // render loop
     // -----------
@@ -82,39 +52,37 @@ int main()
 
         //background render
         glDisable(GL_DEPTH_TEST);
+        background.draw();
+
+
         glm::mat4 projection = glm::perspective(glm::radians(game.camera->Zoom), (float)game.SCR_WIDTH / (float)game.SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = game.camera->GetViewMatrix();
+        //glm::mat4 view = game.camera->GetViewMatrix();
+
+
+        //szczerze to jest kurwa zart jakis
+        //trzeba zrobic tak, zeby pkt 0,0 byl w lewym dolnym rogu
+        // jak? nie wiem, jest prawie ok xD
+        glm::mat4 view = glm::lookAt(glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 10.0f), glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 model = glm::mat4(1.0f);
-        backgroundShader.use();
-        backgroundTex.Bind();
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glEnable(GL_DEPTH_TEST);
 
-        //light source render
-        light->position.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-        light->position.y = sin(glfwGetTime() / 2.0f) * 1.0f;
-        model = glm::mat4(1.0f);
-        lightShader.use();
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        lightShader.setMat4("model", model);
+
+
+
+        game.shaders.find("basicShader")->second->use();
+        game.shaders.find("basicShader")->second->setMat4("view", view);
+        game.shaders.find("basicShader")->second->setMat4("projection", projection);
+        game.shaders.find("basicShader")->second->setVec3("viewPos", game.camera->Position);
+        game.shaders.find("basicShader")->second->setVec3("lightPosition", light->position);
         //for testing
-        //game.models.find("cube")->second->renderModel(&lightShader, light);
-
-        //backpack render
-        ourShader.use();
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("projection", projection);
-        ourShader.setVec3("viewPos", game.camera->Position);
-        ourShader.setVec3("lightPosition", light->position);
-        //for testing
-        //game.models.find("cube")->second->renderModel(&ourShader, backpack);
-
+        if (game.detectCollision(game.player->hero, floor))
+        {
+            std::cout << "Collision\n";
+        }
+        else {
+            std::cout << "No\n";
+        }
+        game.player->hero->renderModel(game.shaders.find("basicShader")->second);
+        floor->renderModel(game.shaders.find("basicShader")->second);
         glfwSwapBuffers(game.window);
         glfwPollEvents();
     }

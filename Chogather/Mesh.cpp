@@ -34,9 +34,13 @@ void Mesh::RenderMesh(ShaderManager *shader, glm::vec3 position, glm::vec3 size,
     shader->setVec3("diffuseModel", this->material.diffuse);
     shader->setVec3("specularModel", this->material.specular);
     glm::mat4 model_matrix = glm::mat4(1.0f);
-    model_matrix = glm::scale(model_matrix, size);
-    model_matrix = glm::translate(model_matrix, position);  
-    model_matrix = glm::rotate(model_matrix, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); 
+
+	//model_matrix = glm::translate(model_matrix, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); // move origin of rotation to center of quad
+	//model_matrix = glm::rotate(model_matrix, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
+	//model_matrix = glm::translate(model_matrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z)); // move origin back
+
+	model_matrix = glm::scale(model_matrix, size); // last scale
+	model_matrix = glm::translate(model_matrix, position);
     shader->setMat4("model", model_matrix);
     glDrawArrays(GL_TRIANGLES, 0, this->vertices.size());
 }

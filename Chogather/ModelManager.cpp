@@ -1,4 +1,5 @@
 #include "ModelManager.h"
+#include <limits>
 using namespace std;
 
 Model::Model() {
@@ -9,6 +10,7 @@ Model::~Model() {
 }
 bool Model::loadobj(string path)
 {
+    float maxX = INT_MIN, maxY = INT_MIN, maxZ = INT_MIN, minX = INT_MAX, minY = INT_MAX, minZ = INT_MAX;
     ifstream file(path);
     if (!file) {
         std::cout << "Cannot load this model, bad path: " + path << endl;
@@ -31,6 +33,18 @@ bool Model::loadobj(string path)
             glm::vec3 vertex;
             ss >> vertex.x >> vertex.y >> vertex.z;
             temp_vertices.push_back(vertex);
+            if (vertex.x <= minX)
+                minX = vertex.x;
+            if (vertex.x >= maxX)
+                maxX = vertex.x;
+            if (vertex.y <= minY)
+                minY = vertex.y;
+            if (vertex.y >= maxY)
+                maxY = vertex.y;
+            if (vertex.z <= minZ)
+                minZ = vertex.z;
+            if (vertex.z >= maxZ)
+                maxZ = vertex.z;
         }
         else if (prefix == "vt") {
             glm::vec2 uv;
@@ -141,6 +155,7 @@ bool Model::loadobj(string path)
         normalIndices.clear();
     }
     file.close();
+    this->size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
     return true;
 }
 

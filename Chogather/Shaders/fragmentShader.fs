@@ -1,8 +1,8 @@
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
-in vec3 Normals; 
-in vec3 FragPos; 
+in vec3 Normals;
+in vec3 FragPos;
 
 uniform sampler2D diffuse_tex;
 uniform sampler2D specular_tex;
