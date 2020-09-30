@@ -184,7 +184,6 @@ bool Model::loadmtl(string path) {
                 this->materials.push_back(*material);
                 material = new Material();
                 material->name = material_name;
-                prefix = "";
             }
 
         }
@@ -228,6 +227,6 @@ bool Model::loadmtl(string path) {
     if (material != nullptr) {
         this->materials.push_back(*material);
     }
-    return true;
     mtlfile.close();
+    return true;
 }
