@@ -2,7 +2,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Material.h"
-#include "ShaderManager.h"
+#include "Shader.h"
 class Mesh {
 public:
     std::vector< glm::vec3 > vertices;
@@ -12,6 +12,6 @@ public:
     Material  material;
     Mesh();
     ~Mesh();
-    void RenderMesh(ShaderManager *shader, glm::vec3 position, glm::vec3 size, float rotate);
+    void RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 size, float rotate);
     void fillVBO();
 };

@@ -6,13 +6,13 @@
 #include <sstream>
 #include <iostream>
 
-class ShaderManager
+class Shader
 {
 public:
     unsigned int ID;
 
-    ShaderManager(const char* vertexPath, const char* fragmentPath);
-    ~ShaderManager();
+    Shader(const char* vertexPath, const char* fragmentPath);
+    ~Shader();
     void use();
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, int value) const;

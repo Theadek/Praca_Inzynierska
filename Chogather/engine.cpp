@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "TextureManager.h"
-#include "ShaderManager.h"
+#include "Shader.h"
 #include "Object.h"
 #include "Game.h"
 #include <string>

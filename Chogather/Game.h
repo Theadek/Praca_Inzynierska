@@ -6,10 +6,10 @@
 #include <map>
 #include "Game.h"
 #include "Camera.h"
-#include "ModelManager.h"
+#include "Model.h"
 #include "Object.h"
 #include "Hero.h"
-#include "ShaderManager.h"
+#include "Shader.h"
 class Game
 {
 public:
@@ -26,7 +26,7 @@ public:
     static Camera* camera;
     std::map <std::string, Model*> models;
     std::vector <Object*> objects;
-    std::map <std::string, ShaderManager*> shaders;
+    std::map <std::string, Shader*> shaders;
     Game(unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
     ~Game();
     int init();

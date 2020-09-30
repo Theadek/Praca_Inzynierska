@@ -1,6 +1,6 @@
 #include "Object.h"
 
-void Object::renderModel(ShaderManager* shader) {
+void Object::renderModel(Shader* shader) {
     shader->use();
     glBindVertexArray(model->VAO);
     for (int i = 0; i < model->meshes.size(); i++) {

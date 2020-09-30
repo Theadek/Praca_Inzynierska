@@ -1,7 +1,7 @@
 #include "Background.h"
 
 Background::Background() {
-    backgroundShader = new ShaderManager("Shaders/background.vs", "Shaders/background.fs");
+    backgroundShader = new Shader("Shaders/background.vs", "Shaders/background.fs");
     backgroundTexture = new Texture2D();
     backgroundShader->use();
     backgroundTexture->Generate("Textures/background.jpg");

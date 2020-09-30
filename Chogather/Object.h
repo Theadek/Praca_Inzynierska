@@ -1,7 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include "ModelManager.h"
+#include "Model.h"
 
 class Object
 {
@@ -11,6 +11,6 @@ public:
     GLfloat rotate;
     Model* model;
 
-    void renderModel(ShaderManager* shader);
+    void renderModel(Shader* shader);
 };
 

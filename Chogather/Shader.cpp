@@ -1,7 +1,7 @@
-#include "ShaderManager.h"
+#include "Shader.h"
 
 
-ShaderManager::ShaderManager(const char* vertexPath, const char* fragmentPath) {
+Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
@@ -73,36 +73,36 @@ ShaderManager::ShaderManager(const char* vertexPath, const char* fragmentPath) {
     glDeleteShader(fragment);
 }
 
-ShaderManager::~ShaderManager()
+Shader::~Shader()
 {
     glDeleteProgram(ID);
 }
 
-void ShaderManager::use()
+void Shader::use()
 {
     glUseProgram(ID);
 }
 
-void ShaderManager::setBool(const std::string& name, bool value) const
+void Shader::setBool(const std::string& name, bool value) const
 {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void ShaderManager::setInt(const std::string& name, int value) const
+void Shader::setInt(const std::string& name, int value) const
 {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void ShaderManager::setFloat(const std::string& name, float value) const
+void Shader::setFloat(const std::string& name, float value) const
 {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void ShaderManager::setMat4(const std::string& name, const glm::mat4& mat) const
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
 {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-void ShaderManager::setVec3(const std::string& name, const glm::vec3& vec3) const
+void Shader::setVec3(const std::string& name, const glm::vec3& vec3) const
 {
     glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &vec3[0]);
 }

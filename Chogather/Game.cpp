@@ -40,9 +40,9 @@ void Game::loadTextures() {
 }
 
 void Game::loadShaders() {
-    ShaderManager* lightShader = new ShaderManager("Shaders/light.vs", "Shaders/light.fs");
+    Shader* lightShader = new Shader("Shaders/light.vs", "Shaders/light.fs");
     shaders.insert({ "lightShader", lightShader });
-    ShaderManager* basicShader = new ShaderManager("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
+    Shader* basicShader = new Shader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
     shaders.insert({ "basicShader", basicShader });
 }
 

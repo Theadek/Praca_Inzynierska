@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "TextureManager.h"
-#include "ShaderManager.h"
+#include "Shader.h"
 class Background
 {
 public:
@@ -17,7 +17,7 @@ public:
     1, 2, 3    // second triangle
     };
     GLuint VBO, VAO, EBO;
-    ShaderManager* backgroundShader;
+    Shader* backgroundShader;
     Texture2D* backgroundTexture;
     Background();
     void draw();
