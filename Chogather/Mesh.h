@@ -3,15 +3,34 @@
 #include <glm/glm.hpp>
 #include "Material.h"
 #include "Shader.h"
+
+struct Vertex {
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoords;
+};
+struct Texture {
+    GLuint id;
+    std::string type;
+    std::string path;
+};
+
 class Mesh {
 public:
-    std::vector< glm::vec3 > vertices;
-    std::vector< glm::vec2 > texture_coordinates;
-    std::vector< glm::vec3 > normals;
-    GLuint VBO;
-    Material  material;
-    Mesh();
+
+    std::vector<Vertex>     vertices;
+    std::vector<GLuint>     indices;
+    std::vector<Texture>    textures;
+    GLuint VAO;
+
+    Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
     ~Mesh();
-    void RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 size, float rotate);
-    void fillVBO();
+
+    void draw(Shader* shader);
+
+private:
+    GLuint VBO, EBO;
+
+    void setupMesh();
+
 };

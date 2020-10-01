@@ -10,6 +10,8 @@
 #include "Object.h"
 #include "Hero.h"
 #include "Shader.h"
+#include "stb_image.h"
+
 class Game
 {
 public:
@@ -24,7 +26,7 @@ public:
     static bool firstMouse;
     static int DEBUG;
     static Camera* camera;
-    std::map <std::string, Model*> models;
+    std::map <std::string, Model> models;
     std::vector <Object*> objects;
     std::map <std::string, Shader*> shaders;
     Game(unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
@@ -37,5 +39,6 @@ public:
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput(GLFWwindow* window);
     bool detectCollision(Object* hero, Object* terrain);
+
 };
 

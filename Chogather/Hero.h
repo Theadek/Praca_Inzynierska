@@ -13,7 +13,6 @@ public:
     Object* hero;
     float speed;
     Hero();
-    ~Hero();
     void Move(Movement, float);
 };
 

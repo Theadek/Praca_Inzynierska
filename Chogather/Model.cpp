@@ -2,231 +2,171 @@
 #include <limits>
 using namespace std;
 
-Model::Model() {
-    glGenVertexArrays(1, &this->VAO);
+
+Model::Model(string const& path, bool gamma)
+{
+    this->gammaCorrection = gamma;
+    loadModel(path);
 }
 Model::~Model() {
-    glDeleteVertexArrays(1, &this->VAO);
+
 }
-bool Model::loadobj(string path)
+
+void Model::draw(Shader* shader)
 {
-    float maxX = INT_MIN, maxY = INT_MIN, maxZ = INT_MIN, minX = INT_MAX, minY = INT_MAX, minZ = INT_MAX;
-    ifstream file(path);
-    if (!file) {
-        std::cout << "Cannot load this model, bad path: " + path << endl;
-        return false;
-    }
-    vector<unsigned int> vertexIndices, uvIndices, normalIndices;
-    vector<glm::vec3> temp_vertices;
-    vector<glm::vec2> temp_uvs;
-    vector<glm::vec3> temp_normals;
-    string line, mtl_path, prefix, mtl_prefix;
-    stringstream ss;
-    Mesh* mesh = nullptr;
-	int pos = path.find_last_of("/");
-	mtl_prefix = path.substr(0, pos);
-    while (getline(file, line)) {
-        ss.clear();
-        ss.str(line);
-        ss >> prefix;
-        if (prefix == "v") {
-            glm::vec3 vertex;
-            ss >> vertex.x >> vertex.y >> vertex.z;
-            temp_vertices.push_back(vertex);
-            if (vertex.x <= minX)
-                minX = vertex.x;
-            if (vertex.x >= maxX)
-                maxX = vertex.x;
-            if (vertex.y <= minY)
-                minY = vertex.y;
-            if (vertex.y >= maxY)
-                maxY = vertex.y;
-            if (vertex.z <= minZ)
-                minZ = vertex.z;
-            if (vertex.z >= maxZ)
-                maxZ = vertex.z;
-        }
-        else if (prefix == "vt") {
-            glm::vec2 uv;
-            ss >> uv.x >> uv.y;
-            temp_uvs.push_back(uv);
-        }
-        else if (prefix == "vn") {
-            glm::vec3 normal;
-            ss >> normal.x >> normal.y >> normal.z;
-            temp_normals.push_back(normal);
-        }
-        else if (prefix == "mtllib") {
-            ss >> mtl_path;
-            mtl_path = mtl_prefix + '/' + mtl_path;
-            if (!this->loadmtl(mtl_path)) {
-                return false;
-            }
-        }
-        else if (prefix == "f") {
-            line.erase(std::remove(line.begin(), line.end(), 'f'), line.end());
-            // model without textures
-            if (line.find("//") != string::npos) {
-                replace(line.begin(), line.end(), '/', ' ');
-                stringstream ss_face(line);
-                int temp;
-                while (ss_face) {
-                    ss_face >> temp;
-                    vertexIndices.push_back(temp);
-                    ss_face >> temp;
-                    normalIndices.push_back(temp);
-                }
-            }
-            else {
-                //model with textures
-                replace(line.begin(), line.end(), '/', ' ');
-                stringstream ss_face(line);
-                int temp;
-                while (!ss_face.eof()) {
-                    ss_face >> temp;
-                    vertexIndices.push_back(temp);
-                    ss_face >> temp;
-                    uvIndices.push_back(temp);
-                    ss_face >> temp;
-                    normalIndices.push_back(temp);
-                }
-            }
-        }
-        else if (prefix == "usemtl") {
-            string material_name;
-            ss >> material_name;
-
-            for (std::vector<Material>::iterator it = this->materials.begin(); it != this->materials.end(); it++) {
-                if (it->name == material_name) {
-                    mesh->material = *it;
-                }
-            }
-        }
-        else if (prefix == "o") {
-            if (mesh == nullptr) {
-                mesh = new Mesh();
-            }
-            else {
-                for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-                    unsigned int vertexIndex = vertexIndices[i];
-                    glm::vec3 vertex = temp_vertices[vertexIndex - 1];
-                    mesh->vertices.push_back(vertex);
-                }
-                for (unsigned int i = 0; i < uvIndices.size(); i++) {
-                    unsigned int uvIndex = uvIndices[i];
-                    glm::vec2 uv = temp_uvs[uvIndex - 1];
-                    mesh->texture_coordinates.push_back(uv);
-                }
-                for (unsigned int i = 0; i < normalIndices.size(); i++) {
-                    unsigned int normalIndex = normalIndices[i];
-                    glm::vec3 normal = temp_normals[normalIndex - 1];
-                    mesh->normals.push_back(normal);
-                }
-                mesh->fillVBO();
-                this->meshes.push_back(mesh);
-                vertexIndices.clear();
-                uvIndices.clear();
-                normalIndices.clear();
-                mesh = new Mesh();
-            }
-
-        }
-    }
-    if (mesh != nullptr) {
-        for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-            unsigned int vertexIndex = vertexIndices[i];
-            glm::vec3 vertex = temp_vertices[vertexIndex - 1];
-            mesh->vertices.push_back(vertex);
-        }
-        for (unsigned int i = 0; i < uvIndices.size(); i++) {
-            unsigned int uvIndex = uvIndices[i];
-            glm::vec2 uv = temp_uvs[uvIndex - 1];
-            mesh->texture_coordinates.push_back(uv);
-        }
-        for (unsigned int i = 0; i < normalIndices.size(); i++) {
-            unsigned int normalIndex = normalIndices[i];
-            glm::vec3 normal = temp_normals[normalIndex - 1];
-            mesh->normals.push_back(normal);
-        }
-        mesh->fillVBO();
-        this->meshes.push_back(mesh);
-        vertexIndices.clear();
-        uvIndices.clear();
-        normalIndices.clear();
-    }
-    file.close();
-    this->size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
-    return true;
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].draw(shader);
 }
 
-bool Model::loadmtl(string path) {
-    ifstream mtlfile(path);
-    if (!mtlfile) {
-        std::cout << "Cannot load this material, bad path: " + path << endl;
-        return false;
+void Model::loadModel(string const &path)
+{
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        cout << "ERROR::ASSIMP::" << importer.GetErrorString() << endl;
+        return;
     }
-    string line, prefix, material_name, texture_name, mtl_prefix;
-    stringstream ss;
-    Material *material = nullptr;
-	int pos  = path.find_last_of("/");
-	mtl_prefix = path.substr(0, pos);
-    while (getline(mtlfile, line)) {
-        ss.clear();
-        ss.str(line);
-        ss >> prefix;
-        if (prefix == "newmtl") {
-            ss >> material_name;
-            if (material == nullptr) {
-                material = new Material();
-                material->name = material_name;
-            }
-            else {
-                this->materials.push_back(*material);
-                material = new Material();
-                material->name = material_name;
-            }
+    directory = path.substr(0, path.find_last_of('/'));
 
+    processNode(scene->mRootNode, scene);
+}
+
+void Model::processNode(aiNode* node, const aiScene* scene)
+{
+    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        meshes.push_back(processMesh(mesh, scene));
+    }
+
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+        processNode(node->mChildren[i], scene);
+    }
+}
+
+Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+{
+    vector<Vertex> vertices;
+    vector<unsigned int> indices;
+    vector<Texture> textures;
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+        Vertex vertex;
+        glm::vec3 vector;
+
+        vector.x = mesh->mVertices[i].x;
+        vector.y = mesh->mVertices[i].y;
+        vector.z = mesh->mVertices[i].z;
+        vertex.Position = vector;
+
+        if (mesh->HasNormals()) {
+            vector.x = mesh->mNormals[i].x;
+            vector.y = mesh->mNormals[i].y;
+            vector.z = mesh->mNormals[i].z;
+            vertex.Normal = vector;
         }
-        else if (prefix == "Ka") {
-            glm::vec3 ambient;
-            ss >> ambient.x >> ambient.y >> ambient.z;
-            material->ambient = ambient;
+
+        if (mesh->mTextureCoords[0]) { //HasTextures?
+            glm::vec2 vec;
+            vec.x = mesh->mTextureCoords[0][i].x;
+            vec.y = mesh->mTextureCoords[0][i].y;
+            vertex.TexCoords = vec;
         }
-        else if (prefix == "Kd") {
-            glm::vec3 diffuse;
-            ss >> diffuse.x >> diffuse.y >> diffuse.z;
-            material->diffuse = diffuse;
+        else {
+            vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
-        else if (prefix == "Ks") {
-            glm::vec3 specular;
-            ss >> specular.x >> specular.y >> specular.z;
-            material->specular = specular;
+        vertices.push_back(vertex);
+    }
+
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        aiFace face = mesh->mFaces[i];
+
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
+            indices.push_back(face.mIndices[j]);
+    }
+
+    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+    vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+    vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+    vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+    vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+    return Mesh(vertices, indices, textures);
+}
+
+vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
+{
+    vector<Texture> textures;
+    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    {
+        aiString str;
+        mat->GetTexture(type, i, &str);
+        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+        bool skip = false;
+        for (unsigned int j = 0; j < textures_loaded.size(); j++)
+        {
+            if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+            {
+                textures.push_back(textures_loaded[j]);
+                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                break;
+            }
         }
-        else if (prefix == "map_Kd") {
-            ss >> texture_name;
-            texture_name = mtl_prefix + "/" + texture_name;
-            Texture2D tex = Texture2D();
-            tex.Generate(texture_name.c_str());
-            material->diffuseTexture = tex;
-        }
-        else if (prefix == "map_Bump") {
-			ss >> texture_name;
-			texture_name = mtl_prefix + "/" + texture_name;
-			Texture2D tex = Texture2D();
-			tex.Generate(texture_name.c_str());
-			material->bumpTexture = tex;
-        }
-        else if (prefix == "map_Ks") {
-            ss >> texture_name;
-            texture_name = mtl_prefix + "/" + texture_name;
-            Texture2D tex = Texture2D();
-            tex.Generate(texture_name.c_str());
-            material->specularTexture = tex;
+        if (!skip)
+        {   // if texture hasn't been loaded already, load it
+            Texture texture;
+            texture.id = TextureFromFile(str.C_Str(), this->directory);
+            texture.type = typeName;
+            texture.path = str.C_Str();
+            textures.push_back(texture);
+            textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }
     }
-    if (material != nullptr) {
-        this->materials.push_back(*material);
+    return textures;
+}
+
+unsigned int TextureFromFile(const char* path, const string& directory, bool gamma) {
+    string filename = string(path);
+    filename = directory + '/' + filename;
+
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
     }
-    mtlfile.close();
-    return true;
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }

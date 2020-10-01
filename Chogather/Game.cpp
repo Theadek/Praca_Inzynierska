@@ -21,19 +21,17 @@ Game::~Game() {
     glfwTerminate();
 }
 
+
+
 void Game::loadModels() {
-    Model* cube = new Model();
-    cube->loadobj("Models/cube/cube.obj");
-    cube->name = "cube";
-    models.insert({ "cube", cube });
-   /*Model* backpack = new Model();
-    backpack->loadobj("Models/backpack/backpack.obj");
-    backpack->name = "backpack";
-    models.insert({ "backpack", backpack });*/
-    Model* ball = new Model();
-    ball->loadobj("Models/ball/ball.obj");
-    ball->name = "ball";
-    models.insert({ "ball", ball });
+    //loadModel("cube", "Models/cube/cube.obj");
+    //loadModel("nanosuit", "Models/nanosuit/nanosuit.obj");
+    //loadModel("ball", "Models/ball/ball.obj");
+    //loadModel("backpack", "Models/backpack/backpack.obj");
+
+    //Model backpack(FileSystem::getPath("Models/backpack/backpack.obj"));
+    Model backpack("Models/backpack/backpack.obj");
+    models.insert({"backpack", backpack});
 }
 
 void Game::loadTextures() {
@@ -74,8 +72,11 @@ int Game::init() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    stbi_set_flip_vertically_on_load(true);
     loadModels();
     loadShaders();
+
+    return 1;
 }
 
 void Game::processInput(GLFWwindow* window)
@@ -128,18 +129,19 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 bool Game::detectCollision(Object* hero, Object* terrain) {
 
-    float additionalShiftX = 0, additionalShiftY = 0;
-    if (terrain->scale.y > 1.0f) {
-        additionalShiftY = terrain->scale.y * terrain->model->size.y / 3;
-    }
-    if (terrain->scale.x > 1.0f) {
-        additionalShiftX = terrain->scale.x * terrain->model->size.x / 3;
-    }
-    bool collisionX = (hero->position.x + (hero->scale.x * hero->model->size.x)) >= terrain->position.x + additionalShiftX &&
-        (terrain->position.x + additionalShiftX +(terrain->scale.x * terrain->model->size.x)) >= hero->position.x;
+    //float additionalShiftX = 0, additionalShiftY = 0;
+    //if (terrain->scale.y > 1.0f) {
+    //    additionalShiftY = terrain->scale.y * terrain->model->size.y / 3;
+    //}
+    //if (terrain->scale.x > 1.0f) {
+    //    additionalShiftX = terrain->scale.x * terrain->model->size.x / 3;
+    //}
+    //bool collisionX = (hero->position.x + (hero->scale.x * hero->model->size.x)) >= terrain->position.x + additionalShiftX &&
+    //    (terrain->position.x + additionalShiftX +(terrain->scale.x * terrain->model->size.x)) >= hero->position.x;
 
-    bool collisionY = (hero->position.y + (hero->scale.y * hero->model->size.y)) >= terrain->position.y - additionalShiftY &&
-        (terrain->position.y - additionalShiftY + (terrain->scale.y * terrain->model->size.y)) >= hero->position.y;
+    //bool collisionY = (hero->position.y + (hero->scale.y * hero->model->size.y)) >= terrain->position.y - additionalShiftY &&
+    //    (terrain->position.y - additionalShiftY + (terrain->scale.y * terrain->model->size.y)) >= hero->position.y;
 
-    return collisionX && collisionY;
+    //return collisionX && collisionY;
+    return true;
 }
