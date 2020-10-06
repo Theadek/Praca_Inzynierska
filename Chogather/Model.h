@@ -16,7 +16,7 @@ public:
     std::vector< Mesh *> meshes;
     GLuint VAO;
     std::string name;
-    glm::vec3 size;
+    glm::vec3 size, corner;
     Model();
     ~Model();
     bool loadobj(std::string path);

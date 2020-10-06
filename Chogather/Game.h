@@ -10,6 +10,10 @@
 #include "Object.h"
 #include "Hero.h"
 #include "Shader.h"
+
+#define GRAVITY 0.5
+#define JUMP_HEIGHT 3.0
+
 class Game
 {
 public:
@@ -22,7 +26,6 @@ public:
     static float lastX;
     static float lastY;
     static bool firstMouse;
-    static int DEBUG;
     static Camera* camera;
     std::map <std::string, Model*> models;
     std::vector <Object*> objects;
@@ -36,6 +39,10 @@ public:
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput(GLFWwindow* window);
-    bool detectCollision(Object* hero, Object* terrain);
+    bool detectCollision(Object* firstObject, Object* secondObject);
+    bool isCollidingBelow();
+    bool isCollidingNext();
+    void updatePosition();
+
 };
 

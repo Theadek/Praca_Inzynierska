@@ -156,6 +156,7 @@ bool Model::loadobj(string path)
     }
     file.close();
     this->size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
+    this->corner = glm::vec3(minX, minY, minZ);
     return true;
 }
 

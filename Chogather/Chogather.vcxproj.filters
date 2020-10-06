@@ -103,5 +103,11 @@
     <None Include="Shaders\vertexShader.vs">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="collisionBox.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\collisionBox.fs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
