@@ -38,10 +38,10 @@ void Game::loadTextures() {
 }
 
 void Game::loadShaders() {
-    Shader* lightShader = new Shader("Shaders/light.vs", "Shaders/light.fs");
+    Shader* lightShader = new Shader("Shaders/light.vert", "Shaders/light.frag");
     shaders.insert({ "lightShader", lightShader });
-    Shader* basicShader = new Shader("Shaders/vertexShader.vs", "Shaders/fragmentShader.fs");
-    shaders.insert({ "basicShader", basicShader });
+    Shader* objectShader = new Shader("Shaders/object.vert", "Shaders/object.frag");
+    shaders.insert({ "objectShader", objectShader });
 }
 
 int Game::init() {

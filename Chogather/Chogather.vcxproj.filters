@@ -85,22 +85,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\background.fs">
+    <None Include="Shaders\background.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\background.vs">
+    <None Include="Shaders\light.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\fragmentShader.fs">
+    <None Include="Shaders\object.frag">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\light.vs">
+    <None Include="Shaders\background.vert">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\light.fs">
+    <None Include="Shaders\light.vert">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\vertexShader.vs">
+    <None Include="Shaders\object.vert">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

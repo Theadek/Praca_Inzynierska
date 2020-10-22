@@ -168,12 +168,12 @@
     <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\background.fs" />
-    <None Include="Shaders\background.vs" />
-    <None Include="Shaders\fragmentShader.fs" />
-    <None Include="Shaders\light.fs" />
-    <None Include="Shaders\light.vs" />
-    <None Include="Shaders\vertexShader.vs" />
+    <None Include="Shaders\background.frag" />
+    <None Include="Shaders\background.vert" />
+    <None Include="Shaders\object.frag" />
+    <None Include="Shaders\light.frag" />
+    <None Include="Shaders\light.vert" />
+    <None Include="Shaders\object.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

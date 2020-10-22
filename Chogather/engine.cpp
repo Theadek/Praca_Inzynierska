@@ -66,14 +66,14 @@ int main()
         //glm::mat4 view = glm::lookAt(glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 10.0f), glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 model = glm::mat4(1.0f);
 
-        game.shaders.find("basicShader")->second->use();
-        game.shaders.find("basicShader")->second->setMat4("view", view);
-        game.shaders.find("basicShader")->second->setMat4("projection", projection);
-        game.shaders.find("basicShader")->second->setVec3("viewPos", game.camera->Position);
-        game.shaders.find("basicShader")->second->setVec3("lightPosition", lightPos);
+        game.shaders.find("objectShader")->second->use();
+        game.shaders.find("objectShader")->second->setMat4("view", view);
+        game.shaders.find("objectShader")->second->setMat4("projection", projection);
+        game.shaders.find("objectShader")->second->setVec3("viewPos", game.camera->Position);
+        game.shaders.find("objectShader")->second->setVec3("lightPosition", lightPos);
 
-        //game.player->hero->renderModel(game.shaders.find("basicShader")->second);
-        floor->renderModel(game.shaders.find("basicShader")->second);
+        //game.player->hero->renderModel(game.shaders.find("objectShader")->second);
+        floor->renderModel(game.shaders.find("objectShader")->second);
         //light->renderModel(game.shaders.find("lightShader")->second);
         glfwSwapBuffers(game.window);
         glfwPollEvents();
