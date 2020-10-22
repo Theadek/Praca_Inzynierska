@@ -13,6 +13,9 @@ Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     this->lastX = SCR_WIDTH / 2;
     this->lastY = SCR_HEIGHT / 2;
     this->player = new Hero();
+    //player->currentJump = JUMP_HEIGHT;
+    player->currentState = WALKING;
+    player->gravityCounter = JUMP_HEIGHT;
 }
 
 Game::~Game() {
@@ -97,7 +100,7 @@ void Game::processInput(GLFWwindow* window)
         camera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, deltaTime);
-    if ((glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS) && isCollidingBelow())
+    if ((glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS) && (isColliding() || player->hero->position.y <= 0))
         player->Move(JUMP, deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_DOWN) == GLFW_PRESS)
         player->Move(CROUCH, deltaTime);
@@ -151,21 +154,19 @@ bool Game::detectCollision(Object* firstObject, Object* secondObject) {
     return collisionX && collisionY && collisionZ;
 }
 
-bool Game::isCollidingBelow() {
+bool Game::isColliding() {
 
     glm::vec3 newHeroCorner = player->hero->position + player->hero->model->corner;
 
-    if (player->hero->position.y == 0)
-        return true;
 
     for (Object* terrain : objects) {
-        glm::vec3 newTerrainCorner = terrain->position + terrain->model->corner;
+        glm::vec3 newTerrainCorner = terrain->position + terrain->model->corner * terrain->scale;
 
         bool collisionX = (newHeroCorner.x + (player->hero->scale.x * player->hero->model->size.x)) >= newTerrainCorner.x &&
             (newTerrainCorner.x + (terrain->scale.x * terrain->model->size.x)) >= newHeroCorner.x;
 
-        bool collisionY = (newHeroCorner.y + (player->hero->scale.y * player->hero->model->size.y) - 0.1) >= newTerrainCorner.y &&
-            (newTerrainCorner.y + (terrain->scale.y * terrain->model->size.y)) >= (newHeroCorner.y - 0.1);
+        bool collisionY = (newHeroCorner.y + (player->hero->scale.y * player->hero->model->size.y)) >= newTerrainCorner.y&&
+            (newTerrainCorner.y + (terrain->scale.y * terrain->model->size.y)) >= newHeroCorner.y;
 
         bool collisionZ = (newHeroCorner.z + (player->hero->scale.z * player->hero->model->size.z)) >= newTerrainCorner.z &&
             (newTerrainCorner.z + (terrain->scale.z * terrain->model->size.z)) >= newHeroCorner.z;
@@ -178,53 +179,121 @@ bool Game::isCollidingBelow() {
     return false;
 }
 
-bool Game::isCollidingNext() {
+Object* Game::isCollidingOnNextMove(char axis) {
 
-    glm::vec3 newHeroCorner = player->hero->position + player->hero->model->corner + player->shiftVector;
+    glm::vec3 newHeroCorner = player->hero->position + player->hero->model->corner;
+    if (axis == 'x') {
+        newHeroCorner.x += player->shiftVector.x;
+    }
+    else if (axis == 'y') {
+        newHeroCorner.y += player->shiftVector.y;
+    }
+    else if (axis == 'z') {
+        newHeroCorner.z += player->shiftVector.z;
+    }
 
     for (Object* terrain : objects) {
-        glm::vec3 newTerrainCorner = terrain->position + terrain->model->corner;
+        glm::vec3 newTerrainCorner = terrain->position + terrain->model->corner * terrain->scale;
 
         bool collisionX = (newHeroCorner.x + (player->hero->scale.x * player->hero->model->size.x)) >= newTerrainCorner.x &&
             (newTerrainCorner.x + (terrain->scale.x * terrain->model->size.x)) >= newHeroCorner.x;
 
         bool collisionY = (newHeroCorner.y + (player->hero->scale.y * player->hero->model->size.y)) >= newTerrainCorner.y &&
-            (newTerrainCorner.y + (terrain->scale.y * terrain->model->size.y)) >= (newHeroCorner.y);
+            (newTerrainCorner.y + (terrain->scale.y * terrain->model->size.y)) >= newHeroCorner.y;
 
         bool collisionZ = (newHeroCorner.z + (player->hero->scale.z * player->hero->model->size.z)) >= newTerrainCorner.z &&
             (newTerrainCorner.z + (terrain->scale.z * terrain->model->size.z)) >= newHeroCorner.z;
 
         if (collisionX && collisionY && collisionZ)
         {
-            return true;
+            return terrain;
         }
     }
-    return false;
+    return NULL;
 }
+
 
 void Game::updatePosition() {
 
-    player->shiftVector.y -= GRAVITY * deltaTime * player->speed;
-    if (isCollidingBelow()) {
-        player->shiftVector.y = 0.0f;
-    }
 
-    if (player->isJumping) {
-        player->currentJump -= 0.1f;
-        player->shiftVector.y += player->currentJump * deltaTime * player->speed;
-        if (player->currentJump < 0) {
-            player->isJumping = false;
-            player->currentJump = JUMP_HEIGHT;
+    switch (player->currentState) {
+    case WALKING:
+        //player->shiftVector.y -= GRAVITY * deltaTime * player->speed;
+        break;
+    case JUMPING:
+        player->gravityCounter -= 0.1f;
+        player->shiftVector.y += GRAVITY * player->gravityCounter * deltaTime * player->speed;
+        if (player->gravityCounter < 0) {
+            player->currentState = FALLING_DOWN;
         }
+        break;
+    case FALLING_DOWN:
+        player->gravityCounter += 0.1f;
+        player->shiftVector.y -= GRAVITY * player->gravityCounter * deltaTime * player->speed;
+        if (player->gravityCounter >= JUMP_HEIGHT) {
+            player->gravityCounter = JUMP_HEIGHT;
+        }
+        break;
     }
 
-    if (!isCollidingNext()) {
-        player->hero->position += player->shiftVector;
+    //update position
+
+    Object* terrain = isCollidingOnNextMove('x');
+    if(terrain == NULL) {
+        player->hero->position.x += player->shiftVector.x;
+    }
+    else {
+        fixedUpdatePosition(terrain, 'x');
+    }
+    terrain = isCollidingOnNextMove('y');
+    if (terrain == NULL) {
+        player->hero->position.y += player->shiftVector.y;
+        if (player->hero->position.y <= 0) {
+            player->hero->position.y = 0;
+        }
+    } else {
+        fixedUpdatePosition(terrain, 'y');
     }
 
     player->shiftVector = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    if (player->hero->position.y < 0)
-        player->hero->position.y = 0;
+    //update states
 
+    if (player->currentState == JUMPING && isColliding()) {
+        player->currentState = FALLING_DOWN;
+    }
+    else if (player->currentState == WALKING && !isColliding()) {
+        player->currentState = FALLING_DOWN;
+    }
+    else if (player->currentState == FALLING_DOWN && isColliding()) {
+        player->currentState = WALKING;
+    }
+    else if (player->hero->position.y <= 0) {
+        player->currentState = WALKING;
+    }
+
+}
+
+void Game::fixedUpdatePosition(Object* terrain, char axis) {
+
+    glm::vec3 newTerrainCorner = terrain->position + terrain->model->corner;
+    glm::vec3 newHeroCorner = player->hero->position + player->hero->model->corner;
+
+    if (axis == 'x') {
+        if (newHeroCorner.x < newTerrainCorner.x) {
+            //TODO
+        }
+        else {
+            // TODO
+        }
+    }
+
+    if (axis == 'y') {
+        if (newHeroCorner.y > newTerrainCorner.y) {
+            player->hero->position.y = -player->hero->model->corner.y + terrain->position.y + (terrain->model->corner.y * terrain->scale.y) + (terrain->scale.y * terrain->model->size.y);
+        }
+        else {
+            player->hero->position.y = -player->hero->model->corner.y + terrain->position.y + (terrain->model->corner.y * terrain->scale.y) - (player->hero->scale.y * player->hero->model->size.y);
+        }
+    }
 }

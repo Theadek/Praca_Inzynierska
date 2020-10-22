@@ -17,6 +17,7 @@ public:
     GLuint VAO;
     std::string name;
     glm::vec3 size, corner;
+    float maxX, maxY;
     Model();
     ~Model();
     bool loadobj(std::string path);

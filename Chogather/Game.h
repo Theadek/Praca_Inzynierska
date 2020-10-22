@@ -11,7 +11,7 @@
 #include "Hero.h"
 #include "Shader.h"
 
-#define GRAVITY 0.5
+#define GRAVITY 1.5
 #define JUMP_HEIGHT 3.0
 
 class Game
@@ -40,9 +40,10 @@ public:
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput(GLFWwindow* window);
     bool detectCollision(Object* firstObject, Object* secondObject);
-    bool isCollidingBelow();
-    bool isCollidingNext();
+    bool isColliding();
+    Object* isCollidingOnNextMove(char axis);
     void updatePosition();
+    void fixedUpdatePosition(Object*, char axis);
 
 };
 

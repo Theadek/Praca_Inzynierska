@@ -2,7 +2,7 @@
 
 Hero::Hero() {
     hero = new Object();
-    hero->position.x = -1.0f;
+    hero->position.x = -5.0f;
     hero->position.y = 5.0f;
     hero->position.z = 0.0f;
     hero->scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -21,11 +21,16 @@ void Hero::Move(Movement playerChoice, float deltaTime) {
         shiftVector.x += deltaTime * speed;
         break;
     case JUMP:
-        if (isJumping) {
+        /*if (isJumping || isFalling) {
             break;
         }
         else {
             isJumping = true;
+            isFalling = false;
+        }*/
+        if (currentState == WALKING) {
+            currentState = JUMPING;
+            gravityCounter = 3.0f;
         }
         break;
     case CROUCH:

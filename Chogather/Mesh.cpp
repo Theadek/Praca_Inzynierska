@@ -5,7 +5,7 @@ Mesh::Mesh() {
 Mesh::~Mesh() {
 	glDeleteBuffers(1, &this->VBO);
 }
-void Mesh::RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 size, float rotate) {
+void Mesh::RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 scale, float rotate, float maxX, float maxY, glm::vec3 size) {
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
     if (this->texture_coordinates.size() != 0) {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -35,12 +35,11 @@ void Mesh::RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 size, float 
     shader->setVec3("specularModel", this->material.specular);
     glm::mat4 model_matrix = glm::mat4(1.0f);
 
-	//model_matrix = glm::translate(model_matrix, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.5f * size.z)); // move origin of rotation to center of quad
-	//model_matrix = glm::rotate(model_matrix, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
-	//model_matrix = glm::translate(model_matrix, glm::vec3(-0.5f * size.x, -0.5f * size.y, -0.5f * size.z)); // move origin back
 
-	model_matrix = glm::scale(model_matrix, size); // last scale
 	model_matrix = glm::translate(model_matrix, position);
+	//model_matrix = glm::translate(model_matrix, glm::vec3(-(maxX - (size.x * scale.x) / 2), -(maxY - size.y *scale.y / 2), 0));
+	model_matrix = glm::scale(model_matrix, scale);
+
     shader->setMat4("model", model_matrix);
     glDrawArrays(GL_TRIANGLES, 0, this->vertices.size());
 }

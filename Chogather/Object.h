@@ -11,6 +11,6 @@ public:
     GLfloat rotate;
     Model* model;
 
-    void renderModel(Shader* shader);
+    void renderModel(Shader* shader, float maxX, float maxY, glm::vec3 size);
 };
 

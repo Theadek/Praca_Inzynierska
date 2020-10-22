@@ -12,6 +12,6 @@ public:
     Material  material;
     Mesh();
     ~Mesh();
-    void RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 size, float rotate);
+    void RenderMesh(Shader *shader, glm::vec3 position, glm::vec3 scale, float rotate, float maxX, float maxY, glm::vec3 size);
     void fillVBO();
 };

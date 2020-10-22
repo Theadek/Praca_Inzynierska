@@ -168,10 +168,8 @@
     <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="collisionBox.vs" />
     <None Include="Shaders\background.fs" />
     <None Include="Shaders\background.vs" />
-    <None Include="Shaders\collisionBox.fs" />
     <None Include="Shaders\fragmentShader.fs" />
     <None Include="Shaders\light.fs" />
     <None Include="Shaders\light.vs" />
