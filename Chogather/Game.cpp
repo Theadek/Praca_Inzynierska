@@ -32,6 +32,9 @@ void Game::loadModels() {
     //Model backpack(FileSystem::getPath("Models/backpack/backpack.obj"));
     Model backpack("Models/backpack/backpack.obj");
     models.insert({"backpack", backpack});
+
+    Model cube("Models/cube/cube.obj");
+    models.insert({"cube", cube});
 }
 
 void Game::loadTextures() {

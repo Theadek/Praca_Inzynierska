@@ -11,7 +11,7 @@
 #include "background.h"
 
 
-glm::vec3 lightPos(4.0f, 4.0f, 0.0f);
+glm::vec3 lightPos(10.0f, 0.0f, 0.0f);
 Game game = Game(800, 600);
 
 int main()
@@ -21,11 +21,11 @@ int main()
 
     Background background = Background();
 
-    /*Object* light = new Object();
+    Object* light = new Object();
     light->position = lightPos;
     light->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     light->rotate = 0.0f;
-    light->model = game.models.find("cube")->second;*/
+    light->model = &game.models.find("cube")->second;
 
     Object* floor = new Object();
     floor->position = glm::vec3(2.0f, 0.0f, 0.0f);
@@ -33,7 +33,7 @@ int main()
     floor->scale = glm::vec3(1.0f, 1.0f, 1.0f);
     floor->model = &game.models.find("backpack")->second;
 
-    //game.player->hero->model = game.models.find("nanosuit")->second;
+    game.player->hero->model = &game.models.find("backpack")->second;
 
 
     game.objects.push_back(floor);
@@ -65,16 +65,23 @@ int main()
         glm::mat4 view = game.camera->GetViewMatrix();
         //glm::mat4 view = glm::lookAt(glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 10.0f), glm::vec3(game.SCR_WIDTH / 2 * 0.01, game.SCR_HEIGHT / 2 * 0.01, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, light->position);
+
 
         game.shaders.find("objectShader")->second->use();
         game.shaders.find("objectShader")->second->setMat4("view", view);
         game.shaders.find("objectShader")->second->setMat4("projection", projection);
         game.shaders.find("objectShader")->second->setVec3("viewPos", game.camera->Position);
         game.shaders.find("objectShader")->second->setVec3("lightPosition", lightPos);
+        //floor->renderModel(game.shaders.find("objectShader")->second);
+        game.player->hero->renderModel(game.shaders.find("objectShader")->second);
 
-        //game.player->hero->renderModel(game.shaders.find("objectShader")->second);
-        floor->renderModel(game.shaders.find("objectShader")->second);
-        //light->renderModel(game.shaders.find("lightShader")->second);
+        game.shaders.find("lightShader")->second->use();
+        game.shaders.find("lightShader")->second->setMat4("view", view);
+        game.shaders.find("lightShader")->second->setMat4("projection", projection);
+        game.shaders.find("lightShader")->second->setMat4("model", model);
+        light->renderModel(game.shaders.find("lightShader")->second);
+
         glfwSwapBuffers(game.window);
         glfwPollEvents();
     }
