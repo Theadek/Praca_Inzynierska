@@ -1,31 +1,33 @@
 #include "Hero.h"
 
-Hero::Hero() {
-    hero = new Object();
-    hero->position.x = 0.0f;
-    hero->position.y = 0.0f;
-    hero->position.z = 0.0f;
-    hero->scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    hero->rotate = 0.0f;
-    this->speed = 5.0f;
+Hero::Hero(Object* object) {
+    this->hero = object;
+    this->speed = SPEED;
+    this->jump_height = JUMP_HEIGHT;
 }
 
-void Hero::Move(Movement playerChoice, float deltaTime) {
+void Hero::Move(Movement playerChoice) {
+    float currentVelocityX = hero->physicsObject->pRigidBody->getLinearVelocity().getX();
+    float currentVelocityY = hero->physicsObject->pRigidBody->getLinearVelocity().getY();
     switch (playerChoice) {
     case LEFT_MOVE:
-        hero->position -= glm::vec3(1.0f, 0.0f, 0.0f) * deltaTime * speed;
+        if(currentVelocityX - speed < -speed)
+            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(-speed, currentVelocityY, 0.0f));
+        else
+            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX - speed, currentVelocityY, 0.0f));
         break;
     case RIGHT_MOVE:
-        hero->position += glm::vec3(1.0f, 0.0f, 0.0f) * deltaTime * speed;
+        if (currentVelocityX + speed > speed)
+            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(speed, currentVelocityY, 0.0f));
+        else
+            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX + speed, currentVelocityY, 0.0f));
         break;
     case JUMP:
-        hero->position += glm::vec3(0.0f, 1.0f, 0.0f) * deltaTime * speed;
+        hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX, jump_height, 0.0f));
         break;
     case CROUCH:
-        hero->position -= glm::vec3(0.0f, 1.0f, 0.0f) * deltaTime * speed;
         break;
     case INTERACTION:
         break;
     }
-    std::cout << "x:" << hero->position.x << " y: " << hero->position.y << std::endl;
 }

@@ -107,7 +107,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>assimpd.lib;glfw3.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimpd.lib;glfw3.lib;opengl32.lib;glu32.lib;BulletCollision_Debug.lib;BulletDynamics_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,25 +144,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background.cpp" />
+    <ClCompile Include="debugDrawer.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="GraphicsObject.cpp" />
     <ClCompile Include="Hero.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="PhysicsObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="debugDrawer.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Hero.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="PhysicsObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextureManager.h" />
@@ -170,6 +176,8 @@
   <ItemGroup>
     <None Include="Shaders\background.frag" />
     <None Include="Shaders\background.vert" />
+    <None Include="Shaders\collisionBoxes.frag" />
+    <None Include="Shaders\collisionBoxes.vert" />
     <None Include="Shaders\object.frag" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />

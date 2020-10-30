@@ -6,7 +6,15 @@ using namespace std;
 Model::Model(string const& path, bool gamma)
 {
     this->gammaCorrection = gamma;
+    this->minX = INT_MAX;
+    this->minY = INT_MAX;
+    this->minZ = INT_MAX;
+    this->maxX = INT_MIN;
+    this->maxY = INT_MIN;
+    this->maxZ = INT_MIN;
+    //this->pCollisionBox = new btConvexHullShape();
     loadModel(path);
+    this->size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
 }
 Model::~Model() {
 
@@ -56,8 +64,19 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.x = mesh->mVertices[i].x;
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
+        if (vector.x > maxX)
+            maxX = vector.x;
+        if (vector.y > maxY)
+            maxY = vector.y;
+        if (vector.z > maxZ)
+            maxZ = vector.z;
+        if (vector.x < minX)
+            minX = vector.x;
+        if (vector.y < minY)
+            minY = vector.y;
+        if (vector.z < minZ)
+            minZ = vector.z;
         vertex.Position = vector;
-
         if (mesh->HasNormals()) {
             vector.x = mesh->mNormals[i].x;
             vector.y = mesh->mNormals[i].y;
@@ -75,6 +94,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
         vertices.push_back(vertex);
+       /* btVector3 btv = btVector3(vertex.Position.x, vertex.Position.y, vertex.Position.z);
+        ((btConvexHullShape*)pCollisionBox)->addPoint(btv);*/
     }
 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {

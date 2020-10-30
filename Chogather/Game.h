@@ -11,7 +11,14 @@
 #include "Hero.h"
 #include "Shader.h"
 #include "stb_image.h"
+#include "debugDrawer.h"
+#include <BulletDynamics/Dynamics/btRigidBody.h>
+#include <BulletDynamics/Dynamics/btDynamicsWorld.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
+#define GRAVITY -20
+#define DEBUG 1
 class Game
 {
 public:
@@ -24,11 +31,18 @@ public:
     static float lastX;
     static float lastY;
     static bool firstMouse;
-    static int DEBUG;
     static Camera* camera;
     std::map <std::string, Model> models;
     std::vector <Object*> objects;
     std::map <std::string, Shader*> shaders;
+    //physics
+    btBroadphaseInterface* m_pBroadphase;
+    btDefaultCollisionConfiguration* m_pCollisionConfiguration;
+    btCollisionDispatcher* m_pDispatcher;
+    btConstraintSolver* m_pSolver;
+    btDynamicsWorld* m_pWorld;
+    btIDebugDraw* debugDrawerObject;
+    //end of physics
     Game(unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
     ~Game();
     int init();
@@ -38,7 +52,9 @@ public:
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput(GLFWwindow* window);
-    bool detectCollision(Object* hero, Object* terrain);
-
+    void initPhysics();
+    bool isOnTheGround(Object* object);
+    void draw();
+    void update();
 };
 

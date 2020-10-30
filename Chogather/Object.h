@@ -2,15 +2,13 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include "Model.h"
-
+#include "PhysicsObject.h"
+#include "GraphicsObject.h"
 class Object
 {
 public:
-    glm::vec3 position;
-    glm::vec3 scale;
-    GLfloat rotate;
-    Model* model;
-
-    void renderModel(Shader* shader);
+    GraphicsObject* graphicsObject;
+    PhysicsObject* physicsObject;
+    Object(GraphicsObject* graphicsObject, PhysicsObject* physicsObject);
 };
 

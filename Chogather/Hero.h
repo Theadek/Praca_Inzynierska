@@ -1,5 +1,7 @@
 #pragma once
 #include "Object.h"
+#define SPEED 3.0
+#define JUMP_HEIGHT 10.0
 enum Movement {
     JUMP = 0,
     CROUCH = 1,
@@ -11,8 +13,8 @@ class Hero
 {
 public:
     Object* hero;
-    float speed;
-    Hero();
-    void Move(Movement, float);
+    float speed, jump_height;
+    Hero(Object* object);
+    void Move(Movement playerChoice);
 };
 

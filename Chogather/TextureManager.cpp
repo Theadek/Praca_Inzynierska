@@ -52,3 +52,8 @@ void Texture2D::Bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, this->ID);
 }
+
+void Texture2D::UnBind() const
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+}

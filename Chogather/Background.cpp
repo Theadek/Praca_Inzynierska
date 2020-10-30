@@ -23,11 +23,13 @@ Background::Background() {
 }
 
 void Background::draw() {
+    glDisable(GL_DEPTH_TEST);
     backgroundShader->use();
     backgroundTexture->Bind();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glEnable(GL_DEPTH_TEST);
 }

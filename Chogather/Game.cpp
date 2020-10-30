@@ -4,7 +4,6 @@ Camera* Game::camera;
 float Game::lastX;
 float Game::lastY;
 bool Game::firstMouse;
-int Game::DEBUG;
 
 Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     camera = new Camera(glm::vec3(0.0f, 0.5f, 12.0f));
@@ -13,8 +12,6 @@ Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     this->firstMouse = true;
     this->lastX = SCR_WIDTH / 2;
     this->lastY = SCR_HEIGHT / 2;
-    this->DEBUG = 1;
-    this->player = new Hero();
 }
 
 Game::~Game() {
@@ -29,12 +26,13 @@ void Game::loadModels() {
     //loadModel("ball", "Models/ball/ball.obj");
     //loadModel("backpack", "Models/backpack/backpack.obj");
 
-    //Model backpack(FileSystem::getPath("Models/backpack/backpack.obj"));
-    Model backpack("Models/backpack/backpack.obj");
-    models.insert({"backpack", backpack});
 
-    Model cube("Models/cube/cube.obj");
-    models.insert({"cube", cube});
+    /*Model backpack("Models/ball/ball.obj");
+    models.insert({"ball", backpack});*/
+
+     Model cube("Models/cube/cube.obj");
+     models.insert({ "cube", cube });
+
 }
 
 void Game::loadTextures() {
@@ -78,7 +76,7 @@ int Game::init() {
     stbi_set_flip_vertically_on_load(true);
     loadModels();
     loadShaders();
-
+    initPhysics();
     return 1;
 }
 
@@ -94,14 +92,14 @@ void Game::processInput(GLFWwindow* window)
         camera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS)
-        player->Move(JUMP, deltaTime);
+    if ((glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS) && isOnTheGround(player->hero))
+        player->Move(JUMP);
     if (glfwGetKey(this->window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        player->Move(CROUCH, deltaTime);
+        player->Move(CROUCH);
     if (glfwGetKey(this->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        player->Move(RIGHT_MOVE, deltaTime);
+        player->Move(RIGHT_MOVE);
     if (glfwGetKey(this->window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        player->Move(LEFT_MOVE, deltaTime);
+        player->Move(LEFT_MOVE);
 }
 
 
@@ -121,7 +119,7 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
         }
 
         float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+        float yoffset = lastY - ypos;
 
         lastX = xpos;
         lastY = ypos;
@@ -130,21 +128,55 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-bool Game::detectCollision(Object* hero, Object* terrain) {
+void Game::initPhysics() {
+    m_pBroadphase = new btDbvtBroadphase();
+    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
+    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
+    m_pSolver = new btSequentialImpulseConstraintSolver;
+    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
+    m_pWorld->setGravity(btVector3(0.0, GRAVITY, 0.0));
 
-    //float additionalShiftX = 0, additionalShiftY = 0;
-    //if (terrain->scale.y > 1.0f) {
-    //    additionalShiftY = terrain->scale.y * terrain->model->size.y / 3;
-    //}
-    //if (terrain->scale.x > 1.0f) {
-    //    additionalShiftX = terrain->scale.x * terrain->model->size.x / 3;
-    //}
-    //bool collisionX = (hero->position.x + (hero->scale.x * hero->model->size.x)) >= terrain->position.x + additionalShiftX &&
-    //    (terrain->position.x + additionalShiftX +(terrain->scale.x * terrain->model->size.x)) >= hero->position.x;
+    debugDrawerObject = new debugDrawer(camera);
+    m_pWorld->setDebugDrawer(debugDrawerObject);
+}
 
-    //bool collisionY = (hero->position.y + (hero->scale.y * hero->model->size.y)) >= terrain->position.y - additionalShiftY &&
-    //    (terrain->position.y - additionalShiftY + (terrain->scale.y * terrain->model->size.y)) >= hero->position.y;
+bool Game::isOnTheGround(Object* object) {
+    float positionX = object->graphicsObject->position.x;
+    float positionY = object->graphicsObject->position.y;
+    float positionZ = object->graphicsObject->position.z;
+    float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
+    float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
+    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ));
+    m_pWorld->rayTest(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackLeft);
+    m_pWorld->rayTest(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackRight);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
+    if (rayCallbackLeft.hasHit() || rayCallbackRight.hasHit() || rayCallbackCenter.hasHit()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
-    //return collisionX && collisionY;
-    return true;
+void Game::draw() {
+    if (DEBUG)
+        m_pWorld->debugDrawWorld();
+    for (Object* object : objects)
+        object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+}
+
+void Game::update() {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    processInput(window);
+    m_pWorld->stepSimulation(deltaTime);
+    for (Object* object : objects) {
+        btTransform trans = object->physicsObject->pRigidBody->getWorldTransform();
+        object->graphicsObject->position.x = trans.getOrigin().x();
+        object->graphicsObject->position.y = trans.getOrigin().y();
+        object->physicsObject->pRigidBody->setActivationState(ACTIVE_TAG);
+    }
 }
