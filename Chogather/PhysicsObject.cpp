@@ -1,10 +1,9 @@
 #include "PhysicsObject.h"
-
+#define M_PI 3.14159265358979323846
 PhysicsObject::PhysicsObject(GraphicsObject* graphicsObject, float mass) {
-
-    //TODO rotation is not implemented
     this->mass = mass;
-    btRotation.setEulerZYX(0.0f, 0.0f, 0.0f);
+    float euler = graphicsObject->rotate * M_PI / 180;
+    btRotation.setEulerZYX(0.0f, euler, 0.0f);
     btPosition = btVector3(graphicsObject->position.x, graphicsObject->position.y, graphicsObject->position.z);
     pMotionState = new btDefaultMotionState(btTransform(btRotation, btPosition));
     btVector3 halfOfSizeWithScale;

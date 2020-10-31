@@ -3,6 +3,7 @@
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <btBulletCollisionCommon.h>
 #include "GraphicsObject.h"
+
 class PhysicsObject
 {
 public:

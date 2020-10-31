@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "stb_image.h"
 #include "debugDrawer.h"
+#include "Background.h"
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <btBulletCollisionCommon.h>
@@ -32,6 +33,7 @@ public:
     static float lastY;
     static bool firstMouse;
     static Camera* camera;
+    static Background* background;
     std::map <std::string, Model> models;
     std::vector <Object*> objects;
     std::map <std::string, Shader*> shaders;
@@ -49,6 +51,7 @@ public:
     void loadModels();
     void loadTextures();
     void loadShaders();
+    void loadObjects();
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput(GLFWwindow* window);

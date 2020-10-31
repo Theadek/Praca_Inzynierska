@@ -1,12 +1,11 @@
 #include "debugDrawer.h"
 
-debugDrawer::debugDrawer() :m_debugMode(0) {
-}
-
-
-debugDrawer::debugDrawer(Camera* camera) : m_debugMode(0) {
+debugDrawer::debugDrawer(Camera* camera, float SCR_WIDTH, float SCR_HEIGHT) : m_debugMode(0) {
+    this->SCR_WIDTH = SCR_WIDTH;
+    this->SCR_HEIGHT = SCR_HEIGHT;
     this->camera = camera;
     this->shader = new Shader("Shaders/collisionBoxes.vert", "Shaders/collisionBoxes.frag");
+    glGenVertexArrays(1, &lineVAO);
 }
 
 void debugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
@@ -15,9 +14,8 @@ void debugDrawer::drawLine(const btVector3& from, const btVector3& to, const btV
             to.getX(), to.getY(), to.getZ()
     };
     glm::mat4 view = camera->GetViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)800 / (float)600, 0.1f, 100.0f);
-    GLuint lineVAO, lineVBO;
-    glGenVertexArrays(1, &lineVAO);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+    GLuint lineVBO;
     glGenBuffers(1, &lineVBO);
     glBindVertexArray(lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
@@ -28,11 +26,9 @@ void debugDrawer::drawLine(const btVector3& from, const btVector3& to, const btV
     shader->setMat4("model", glm::mat4(1.0f));
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);
-    glBindVertexArray(lineVAO);
     glLineWidth(4.0f);
     glDrawArrays(GL_LINES, 0, 2);
     glLineWidth(1.0f);
-    glDeleteVertexArrays(1, &lineVAO);
     glDeleteBuffers(1, &lineVBO);
 }
 void  debugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
