@@ -1,9 +1,9 @@
 #include "Hero.h"
 
 Hero::Hero(Object* object) {
-    this->hero = object;
-    this->speed = SPEED;
-    this->jump_height = JUMP_HEIGHT;
+    hero = object;
+    speed = SPEED;
+    jump_height = JUMP_HEIGHT;
 }
 
 void Hero::Move(Movement playerChoice) {

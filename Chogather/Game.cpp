@@ -243,8 +243,10 @@ void Game::update() {
         object->graphicsObject->position.x = trans.getOrigin().x();
         object->graphicsObject->position.y = trans.getOrigin().y();
         object->physicsObject->pRigidBody->setActivationState(ACTIVE_TAG);
-        if(object->tag == LIGHT)
+        if (object->tag == LIGHT) {
+            shaders.find("objectShader")->second->use();
             shaders.find("objectShader")->second->setVec3("lightPosition", object->graphicsObject->position);
+        }
     }
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

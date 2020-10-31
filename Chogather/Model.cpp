@@ -5,16 +5,16 @@ using namespace std;
 
 Model::Model(string const& path, bool gamma)
 {
-    this->gammaCorrection = gamma;
-    this->minX = INT_MAX;
-    this->minY = INT_MAX;
-    this->minZ = INT_MAX;
-    this->maxX = INT_MIN;
-    this->maxY = INT_MIN;
-    this->maxZ = INT_MIN;
+    gammaCorrection = gamma;
+    minX = INT_MAX;
+    minY = INT_MAX;
+    minZ = INT_MAX;
+    maxX = INT_MIN;
+    maxY = INT_MIN;
+    maxZ = INT_MIN;
     //this->pCollisionBox = new btConvexHullShape();
     loadModel(path);
-    this->size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
+    size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
 }
 Model::~Model() {
 
