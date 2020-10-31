@@ -19,7 +19,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #define GRAVITY -20
-#define DEBUG 1
+
 class Game
 {
 public:
@@ -32,6 +32,7 @@ public:
     static float lastX;
     static float lastY;
     static bool firstMouse;
+    static bool Debug;
     static Camera* camera;
     static Background* background;
     std::map <std::string, Model> models;
@@ -54,10 +55,13 @@ public:
     void loadObjects();
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-    void processInput(GLFWwindow* window);
+    void processInput();
     void initPhysics();
     bool isOnTheGround(Object* object);
     void draw();
     void update();
+
+private:
+    void toggleDebug();
 };
 

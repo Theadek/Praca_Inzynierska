@@ -5,14 +5,16 @@ Background* Game::background;
 float Game::lastX;
 float Game::lastY;
 bool Game::firstMouse;
+bool Game::Debug;
 
 Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     camera = new Camera(glm::vec3(0.0f, 0.5f, 12.0f));
-    this->SCR_HEIGHT = HEIGHT;
-    this->SCR_WIDTH = WIDTH;
-    this->firstMouse = true;
-    this->lastX = SCR_WIDTH / 2;
-    this->lastY = SCR_HEIGHT / 2;
+    SCR_HEIGHT = HEIGHT;
+    SCR_WIDTH = WIDTH;
+    firstMouse = true;
+    Debug = false;
+    lastX = SCR_WIDTH / 2;
+    lastY = SCR_HEIGHT / 2;
 }
 
 Game::~Game() {
@@ -89,15 +91,15 @@ int Game::init() {
 
     // glfw window creation
     // --------------------
-    this->window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Chogather", NULL, NULL);
-    if (this->window == NULL)
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Chogather", NULL, NULL);
+    if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(this->window);
-    glfwSetFramebufferSizeCallback(this->window, &framebuffer_size_callback);
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, &framebuffer_size_callback);
     glfwSetCursorPosCallback(window, &mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // glad: load all OpenGL function pointers
@@ -116,26 +118,42 @@ int Game::init() {
     return 1;
 }
 
-void Game::processInput(GLFWwindow* window)
+void Game::toggleDebug() {
+    static bool debugEnabled = false;
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        if (!debugEnabled) {
+            Debug = !Debug;
+            debugEnabled = !debugEnabled;
+        }
+    }
+    else if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+        if (debugEnabled) {
+            debugEnabled = !debugEnabled;
+        }
+    }
+}
+
+void Game::processInput()
 {
-    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->window, true);
-    if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera->ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera->ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         camera->ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera->ProcessKeyboard(RIGHT, deltaTime);
-    if ((glfwGetKey(this->window, GLFW_KEY_UP) == GLFW_PRESS) && isOnTheGround(player->hero))
+    if ((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) && isOnTheGround(player->hero))
         player->Move(JUMP);
-    if (glfwGetKey(this->window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         player->Move(CROUCH);
-    if (glfwGetKey(this->window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         player->Move(RIGHT_MOVE);
-    if (glfwGetKey(this->window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         player->Move(LEFT_MOVE);
+    toggleDebug();
 }
 
 
@@ -146,7 +164,7 @@ void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (DEBUG) {
+    if (Debug) {
         if (firstMouse)
         {
             lastX = xpos;
@@ -200,7 +218,7 @@ void Game::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     background->draw();
-    if (DEBUG)
+    if (Debug)
         m_pWorld->debugDrawWorld();
     for (Object* object : objects) {
         if (object->tag == LIGHT) {
@@ -218,7 +236,7 @@ void Game::update() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    processInput(window);
+    processInput();
     m_pWorld->stepSimulation(deltaTime);
     for (Object* object : objects) {
         btTransform trans = object->physicsObject->pRigidBody->getWorldTransform();
