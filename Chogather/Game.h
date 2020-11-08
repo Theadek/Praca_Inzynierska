@@ -10,6 +10,9 @@
 #include "Object.h"
 #include "Hero.h"
 #include "Shader.h"
+#include "Font.h"
+#include "UIElement.h"
+#include "UIText.h"
 #include "stb_image.h"
 #include "debugDrawer.h"
 #include "Background.h"
@@ -38,6 +41,8 @@ public:
     std::map <std::string, Model> models;
     std::vector <Object*> objects;
     std::map <std::string, Shader*> shaders;
+    std::map <std::string, Font* > fonts;
+    std::map <std::string, UIElement* > UIelements;
     //physics
     btBroadphaseInterface* m_pBroadphase;
     btDefaultCollisionConfiguration* m_pCollisionConfiguration;
@@ -53,6 +58,8 @@ public:
     void loadTextures();
     void loadShaders();
     void loadObjects();
+    void loadFonts();
+    void createUIElements();
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
     void processInput();

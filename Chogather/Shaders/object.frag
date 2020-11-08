@@ -47,7 +47,7 @@ void main()
     vec3 ambient;
     vec3 diffuse;
     if(number_of_texture_diffuse == 0) {
-        ambient = vec3(1.0, 0.0, 0.0);
+        ambient = vec3(0.5, 0.5, 0.5);
         diffuse = lightDiffuse * diff; //TODO add material.diffuse ???
     }
     else if(number_of_texture_diffuse == 1) {
@@ -64,7 +64,7 @@ void main()
         specular = lightSpecular * spec * texture(texture_specular1, TexCoords).rgb;
     }
 
-    vec3 result = diffuse + specular;
+    vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
 
 }

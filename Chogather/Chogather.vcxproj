@@ -107,7 +107,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>assimpd.lib;glfw3.lib;opengl32.lib;glu32.lib;BulletCollision_Debug.lib;BulletDynamics_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimpd.lib;glfw3.lib;opengl32.lib;glu32.lib;BulletCollision_Debug.lib;BulletDynamics_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,6 +146,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="debugDrawer.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GraphicsObject.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="debugDrawer.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Hero.h" />
@@ -172,12 +174,16 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="UIElement.h" />
+    <ClInclude Include="UIText.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\background.frag" />
     <None Include="Shaders\background.vert" />
     <None Include="Shaders\collisionBoxes.frag" />
     <None Include="Shaders\collisionBoxes.vert" />
+    <None Include="Shaders\Glyph.frag" />
+    <None Include="Shaders\Glyph.vert" />
     <None Include="Shaders\object.frag" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />

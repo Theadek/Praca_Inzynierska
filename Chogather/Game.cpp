@@ -33,8 +33,8 @@ void Game::loadModels() {
    /* Model backpack("Models/backpack/backpack.obj");
     models.insert({"backpack", backpack});*/
 
-     Model cube("Models/cube/cube.obj");
-     models.insert({ "cube", cube });
+    Model cube("Models/cube/cube.obj");
+    models.insert({ "cube", cube });
 
 }
 
@@ -47,6 +47,8 @@ void Game::loadShaders() {
     shaders.insert({ "lightShader", lightShader });
     Shader* objectShader = new Shader("Shaders/object.vert", "Shaders/object.frag");
     shaders.insert({ "objectShader", objectShader });
+    Shader* fontShader = new Shader("Shaders/Glyph.vert", "Shaders/Glyph.frag");
+    shaders.insert({ "fontShader", fontShader });
 }
 
 void Game::loadObjects() {
@@ -81,6 +83,21 @@ void Game::loadObjects() {
     m_pWorld->addRigidBody(floor2->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(light->physicsObject->pRigidBody);
 }
+
+void Game::loadFonts()
+{
+    Font* chinaTown = new Font("Fonts/ChinaTown.ttf");
+    fonts.insert({ "ChinaTown", chinaTown });
+}
+
+void Game::createUIElements()
+{
+    Font* chinaTown = fonts.find("ChinaTown")->second;
+
+    UIElement* logo = new UIText(20.0f, 20.0f, 1.0f, "ChoGather", chinaTown, glm::vec3(1.0f, 0.0f, 0.0f));
+    UIelements.insert({ "logo", logo });
+}
+
 int Game::init() {
     // glfw: initialize and configure
    // ------------------------------
@@ -109,12 +126,16 @@ int Game::init() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     stbi_set_flip_vertically_on_load(true);
     background = new Background();
     loadModels();
     loadShaders();
     initPhysics();
     loadObjects();
+    loadFonts();
+    createUIElements();
     return 1;
 }
 
@@ -135,17 +156,21 @@ void Game::toggleDebug() {
 
 void Game::processInput()
 {
+    if (Debug) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera->ProcessKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera->ProcessKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera->ProcessKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera->ProcessKeyboard(RIGHT, deltaTime);
+    }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(RIGHT, deltaTime);
-    if ((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) && isOnTheGround(player->hero))
+    if (((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) ||
+        (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)) &&
+        isOnTheGround(player->hero))
         player->Move(JUMP);
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         player->Move(CROUCH);
@@ -228,6 +253,11 @@ void Game::draw() {
             object->graphicsObject->renderModel(shaders.find("objectShader")->second);
         }
     }
+    for (std::pair<std::string, UIElement*> element : UIelements) {
+        Shader* shader = shaders.find("fontShader")->second;
+        element.second->draw(shader);
+    }
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
@@ -260,4 +290,8 @@ void Game::update() {
     shaders.find("lightShader")->second->use();
     shaders.find("lightShader")->second->setMat4("view", view);
     shaders.find("lightShader")->second->setMat4("projection", projection);
+
+    glm::mat4 projectionUI = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+    shaders.find("fontShader")->second->use();
+    shaders.find("fontShader")->second->setMat4("projection", projectionUI);
 }
