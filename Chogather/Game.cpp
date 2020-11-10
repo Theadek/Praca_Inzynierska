@@ -30,12 +30,21 @@ void Game::loadModels() {
     //loadModel("backpack", "Models/backpack/backpack.obj");
 
 
-   /* Model backpack("Models/backpack/backpack.obj");
-    models.insert({"backpack", backpack});*/
 
     Model cube("Models/cube/cube.obj");
     models.insert({ "cube", cube });
 
+    for (int i = 1; i <= JUMP_MODELS; i++) {
+        string jumpModelName = (i < 10) ? "Models/Jump/jump_00000" + to_string(i) + ".obj" : "Models/Jump/jump_0000" + to_string(i) + ".obj";
+        Model jump(jumpModelName);
+        models.insert({ "jump" + to_string(i), jump });
+    }
+
+    for (int i = 1; i <= WALK_MODELS; i++) {
+        string walkModelName = (i < 10) ? "Models/Walk/walk_00000" + to_string(i) + ".obj" : "Models/Walk/walk_0000" + to_string(i) + ".obj";
+        Model walk(walkModelName);
+        models.insert({ "walk"+to_string(i), walk });
+    }
 }
 
 void Game::loadTextures() {
@@ -52,9 +61,20 @@ void Game::loadShaders() {
 }
 
 void Game::loadObjects() {
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, &models.find("cube")->second);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.3f), 90.0f, &models.find("walk1")->second);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     Object* cube = new Object(graphicsObject, physicsObject, HERO);
+
+    for (int i = 1; i <= JUMP_MODELS; i++) {
+        string jumpModelName = "jump" + to_string(i);
+        graphicsObject->modelsForJumpAnimation.push_back(&models.find(jumpModelName)->second);
+    }
+
+    for (int i = 1; i <= WALK_MODELS; i++) {
+        string walkModelName = "walk" + to_string(i);
+        graphicsObject->modelsForWalkAnimation.push_back(&models.find(walkModelName)->second);
+    }
+
     cube->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
     cube->physicsObject->pRigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
     cube->physicsObject->pRigidBody->setFriction(1.0f);
@@ -67,7 +87,14 @@ void Game::loadObjects() {
     floor2->physicsObject->pRigidBody->setFriction(1.0f);
     floor2->physicsObject->pRigidBody->setRestitution(0.0f);
 
-    GraphicsObject* lightGraphicsObject = new GraphicsObject(glm::vec3(4.0f, 4.0f, 2.0f), glm::vec3(0.5f, 0.5f, 0.5f), 0.0f, &models.find("cube")->second);
+    GraphicsObject* graphicsObject3 = new GraphicsObject(glm::vec3(3.0f, 1.0f, 0.0f), glm::vec3(2.0f, 1.0f, 1.0f), 0.0f, &models.find("cube")->second);
+    PhysicsObject* physicsObject3 = new PhysicsObject(graphicsObject3, 0.0f);
+    Object* floor3 = new Object(graphicsObject3, physicsObject3, PLATFORM);
+    floor3->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));
+    floor3->physicsObject->pRigidBody->setFriction(1.0f);
+    floor3->physicsObject->pRigidBody->setRestitution(0.0f);
+
+    GraphicsObject* lightGraphicsObject = new GraphicsObject(glm::vec3(4.0f, 6.0f, 6.0f), glm::vec3(1.5f, 1.5f, 1.5f), 0.0f, &models.find("cube")->second);
     PhysicsObject* lightPhysicsObject = new PhysicsObject(lightGraphicsObject, 0.0f);
     Object* light = new Object(lightGraphicsObject, lightPhysicsObject, LIGHT);
     light->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));
@@ -78,9 +105,11 @@ void Game::loadObjects() {
     player = hero;
     objects.push_back(cube);
     objects.push_back(floor2);
+    objects.push_back(floor3);
     objects.push_back(light);
     m_pWorld->addRigidBody(cube->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(floor2->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(floor3->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(light->physicsObject->pRigidBody);
 }
 
@@ -225,13 +254,9 @@ bool Game::isOnTheGround(Object* object) {
     float positionZ = object->graphicsObject->position.z;
     float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
     float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
-    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
     btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackLeft);
-    m_pWorld->rayTest(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackRight);
     m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
-    if (rayCallbackLeft.hasHit() || rayCallbackRight.hasHit() || rayCallbackCenter.hasHit()) {
+    if (rayCallbackCenter.hasHit()) {
         return true;
     }
     else {
@@ -276,6 +301,26 @@ void Game::update() {
         if (object->tag == LIGHT) {
             shaders.find("objectShader")->second->use();
             shaders.find("objectShader")->second->setVec3("lightPosition", object->graphicsObject->position);
+        }
+        if (object->tag == HERO) {
+            if (player->isFacingRight) {
+                player->hero->graphicsObject->rotate = 90.0f;
+            }
+            else {
+                player->hero->graphicsObject->rotate = -90.0f;
+            }
+            if (isOnTheGround(object)) {
+                player->hero->graphicsObject->isJumping = false;
+            }
+            else {
+                player->hero->graphicsObject->isJumping = true;
+            }
+            if (object->physicsObject->pRigidBody->getLinearVelocity().getX() != 0) {
+                object->graphicsObject->isWalking = true;
+            }
+            else {
+                object->graphicsObject->isWalking = false;
+            }
         }
     }
 
