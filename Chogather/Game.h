@@ -19,7 +19,8 @@
 #include <btBulletDynamicsCommon.h>
 
 #define GRAVITY -20
-
+#define JUMP_MODELS 0
+#define WALK_MODELS 20
 class Game
 {
 public:
