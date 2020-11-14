@@ -1,39 +1,64 @@
 #include "Hero.h"
 
-Hero::Hero(Object* object) {
-    hero = object;
+bool Hero::isLoaded = false;
+
+Hero::Hero(glm::vec2 position, glm::vec3 scale) {
+    if (!isLoaded) {
+        for (int i = 1; i <= JUMP_MODELS; i++) {
+            string jumpModelName = (i < 10) ? "Models/Jump/jump_00000" + to_string(i) + ".obj" : "Models/Jump/jump_0000" + to_string(i) + ".obj";
+            Model* jump = new Model(jumpModelName);
+            modelsForJumpAnimation.push_back(jump);
+        }
+
+        for (int i = 1; i <= WALK_MODELS; i++) {
+            string walkModelName = (i < 10) ? "Models/Walk/walk_00000" + to_string(i) + ".obj" : "Models/Walk/walk_0000" + to_string(i) + ".obj";
+            Model* walk = new Model(walkModelName);
+            modelsForWalkAnimation.push_back(walk);
+        }
+        isLoaded = true;
+    }
+    AnimatedGraphicsObject* graphicsObject = new AnimatedGraphicsObject(glm::vec3(position, positionOnZ), scale, 90.0f, modelsForWalkAnimation, modelsForJumpAnimation);
+    PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
+    this->object = new Object(graphicsObject, physicsObject, HERO);
+    this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
+    this->object->physicsObject->pRigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
+    this->object->physicsObject->pRigidBody->setFriction(1.0f);
+    this->object->physicsObject->pRigidBody->setRestitution(0.0f);
+    this->object = new Object(graphicsObject, physicsObject, HERO);
     speed = SPEED;
     jump_height = JUMP_HEIGHT;
     state = STAYING;
 }
 
 void Hero::Move(Movement playerChoice) {
-    float currentVelocityX = hero->physicsObject->pRigidBody->getLinearVelocity().getX();
-    float currentVelocityY = hero->physicsObject->pRigidBody->getLinearVelocity().getY();
+    float currentVelocityX = object->physicsObject->pRigidBody->getLinearVelocity().getX();
+    float currentVelocityY = object->physicsObject->pRigidBody->getLinearVelocity().getY();
     switch (playerChoice) {
     case LEFT_MOVE:
         isFacingRight = false;
         if(currentVelocityX - speed < -speed)
-            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(-speed, currentVelocityY, 0.0f));
+            object->physicsObject->pRigidBody->setLinearVelocity(btVector3(-speed, currentVelocityY, 0.0f));
         else
-            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX - speed, currentVelocityY, 0.0f));
+            object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX - speed, currentVelocityY, 0.0f));
         state = WALKING;
         break;
     case RIGHT_MOVE:
         isFacingRight = true;
         if (currentVelocityX + speed > speed)
-            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(speed, currentVelocityY, 0.0f));
+            object->physicsObject->pRigidBody->setLinearVelocity(btVector3(speed, currentVelocityY, 0.0f));
         else
-            hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX + speed, currentVelocityY, 0.0f));
+            object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX + speed, currentVelocityY, 0.0f));
         state = WALKING;
         break;
     case JUMP:
-        hero->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX, jump_height, 0.0f));
+        object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX, jump_height, 0.0f));
         state = JUMPING;
         break;
     case CROUCH:
+        state = CROUCHING;
         break;
     case INTERACTION:
+        state = ACTION;
         break;
     }
 }

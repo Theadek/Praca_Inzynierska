@@ -24,27 +24,8 @@ Game::~Game() {
 
 
 void Game::loadModels() {
-    //loadModel("cube", "Models/cube/cube.obj");
-    //loadModel("nanosuit", "Models/nanosuit/nanosuit.obj");
-    //loadModel("ball", "Models/ball/ball.obj");
-    //loadModel("backpack", "Models/backpack/backpack.obj");
-
-
-
     Model cube("Models/cube/cube.obj");
     models.insert({ "cube", cube });
-
-    for (int i = 1; i <= JUMP_MODELS; i++) {
-        string jumpModelName = (i < 10) ? "Models/Jump/jump_00000" + to_string(i) + ".obj" : "Models/Jump/jump_0000" + to_string(i) + ".obj";
-        Model jump(jumpModelName);
-        models.insert({ "jump" + to_string(i), jump });
-    }
-
-    for (int i = 1; i <= WALK_MODELS; i++) {
-        string walkModelName = (i < 10) ? "Models/Walk/walk_00000" + to_string(i) + ".obj" : "Models/Walk/walk_0000" + to_string(i) + ".obj";
-        Model walk(walkModelName);
-        models.insert({ "walk"+to_string(i), walk });
-    }
 }
 
 void Game::loadTextures() {
@@ -61,25 +42,8 @@ void Game::loadShaders() {
 }
 
 void Game::loadObjects() {
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.3f), 90.0f, &models.find("walk1")->second);
-    PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
-    Object* cube = new Object(graphicsObject, physicsObject, HERO);
 
-    for (int i = 1; i <= JUMP_MODELS; i++) {
-        string jumpModelName = "jump" + to_string(i);
-        graphicsObject->modelsForJumpAnimation.push_back(&models.find(jumpModelName)->second);
-    }
-
-    for (int i = 1; i <= WALK_MODELS; i++) {
-        string walkModelName = "walk" + to_string(i);
-        graphicsObject->modelsForWalkAnimation.push_back(&models.find(walkModelName)->second);
-    }
-
-    cube->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
-    cube->physicsObject->pRigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
-    cube->physicsObject->pRigidBody->setFriction(1.0f);
-    cube->physicsObject->pRigidBody->setRestitution(0.0f);
-
+    // we have to delete it, we wont create platforms through code, only for testing purpose
     GraphicsObject* graphicsObject2 = new GraphicsObject(glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(10.0f, 1.0f, 1.0f), 0.0f, &models.find("cube")->second);
     PhysicsObject* physicsObject2 = new PhysicsObject(graphicsObject2, 0.0f);
     Object* floor2 = new Object(graphicsObject2, physicsObject2, PLATFORM);
@@ -87,30 +51,42 @@ void Game::loadObjects() {
     floor2->physicsObject->pRigidBody->setFriction(1.0f);
     floor2->physicsObject->pRigidBody->setRestitution(0.0f);
 
-    GraphicsObject* graphicsObject3 = new GraphicsObject(glm::vec3(3.0f, 1.0f, 0.0f), glm::vec3(2.0f, 1.0f, 1.0f), 0.0f, &models.find("cube")->second);
-    PhysicsObject* physicsObject3 = new PhysicsObject(graphicsObject3, 0.0f);
-    Object* floor3 = new Object(graphicsObject3, physicsObject3, PLATFORM);
-    floor3->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));
-    floor3->physicsObject->pRigidBody->setFriction(1.0f);
-    floor3->physicsObject->pRigidBody->setRestitution(0.0f);
 
-    GraphicsObject* lightGraphicsObject = new GraphicsObject(glm::vec3(4.0f, 6.0f, 6.0f), glm::vec3(1.5f, 1.5f, 1.5f), 0.0f, &models.find("cube")->second);
-    PhysicsObject* lightPhysicsObject = new PhysicsObject(lightGraphicsObject, 0.0f);
-    Object* light = new Object(lightGraphicsObject, lightPhysicsObject, LIGHT);
-    light->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));
-    light->physicsObject->pRigidBody->setFriction(1.0f);
-    light->physicsObject->pRigidBody->setRestitution(0.0f);
+    GraphicsObject* graphicsObject3 = new GraphicsObject(glm::vec3(-6.0f, 2.0f, 0.0f), glm::vec3(0.8f, 0.8f, 0.8f), 0.0f, &models.find("cube")->second);
+    PhysicsObject* physicsObject3 = new PhysicsObject(graphicsObject3, 1.0f);
+    Object* cube = new Object(graphicsObject3, physicsObject3, PLATFORM);
+    cube->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 0.0f));
+    cube->physicsObject->pRigidBody->setFriction(1.0f);
+    cube->physicsObject->pRigidBody->setRestitution(0.0f);
 
-    Hero* hero = new Hero(cube);
+    //-------------------------------------------------------------------
+
+    Hero* hero = new Hero(glm::vec2(0.0f, 10.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+    DoorObject* door = new DoorObject(glm::vec2(2.0f, 1.5f), glm::vec3(0.3f, 0.3f, 0.3f), -90.0f);
+    DoorObject* door2 = new DoorObject(glm::vec2(6.0f, 1.5f), glm::vec3(0.3f, 0.3f, 0.3f), -90.0f);
+    LeverObject* lever = new LeverObject(glm::vec2(-4.0f, 0.5f), glm::vec3(0.1f, 0.1f, 0.1f), -90.0f);
+    PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(-2.0f, -1.0f), glm::vec3(1.0f, 0.1f, 1.0f), 0.0f);
+    LightObject* light = new LightObject(glm::vec3(4.0f, 6.0f, 6.0f), glm::vec3(1.5f, 1.5f, 1.5f), 0.0f);
+    lever->bind(door2);
+    pressurePlate->bind(door);
+
     player = hero;
-    objects.push_back(cube);
+    objects.push_back(hero->object);
     objects.push_back(floor2);
-    objects.push_back(floor3);
-    objects.push_back(light);
-    m_pWorld->addRigidBody(cube->physicsObject->pRigidBody);
+    objects.push_back(cube);
+    doors.push_back(door);
+    doors.push_back(door2);
+    levers.push_back(lever);
+    pressurePlates.push_back(pressurePlate);
+    lights.push_back(light);
+    m_pWorld->addRigidBody(hero->object->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(floor2->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(floor3->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(light->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(door2->object->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(lever->object->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(cube->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(pressurePlate->object->physicsObject->pRigidBody);
+    m_pWorld->addRigidBody(light->object->physicsObject->pRigidBody);
 }
 
 void Game::loadFonts()
@@ -197,9 +173,7 @@ void Game::processInput()
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if (((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) ||
-        (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)) &&
-        isOnTheGround(player->hero))
+    if ((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) && isOnTheGround(player->object))
         player->Move(JUMP);
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         player->Move(CROUCH);
@@ -207,6 +181,20 @@ void Game::processInput()
         player->Move(RIGHT_MOVE);
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         player->Move(LEFT_MOVE);
+
+
+    //we have to change it ----------------------------------------------------------------
+    //space handle
+    static int oldState = GLFW_RELEASE;
+    int newState = glfwGetKey(window, GLFW_KEY_SPACE);
+    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+        if (isInTheDepth(player->object)) {
+            player->Move(INTERACTION);
+        }
+    }
+    oldState = newState;
+    //-------------------------------------------------------------------------------------
+
     toggleDebug();
 }
 
@@ -252,14 +240,36 @@ bool Game::isOnTheGround(Object* object) {
     float positionX = object->graphicsObject->position.x;
     float positionY = object->graphicsObject->position.y;
     float positionZ = object->graphicsObject->position.z;
-    float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
     float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
     btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ));
     m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
+    return rayCallbackCenter.hasHit();
+}
+
+bool Game::isBelow(Object* object) {
+    float positionX = object->graphicsObject->position.x;
+    float positionY = object->graphicsObject->position.y;
+    float positionZ = object->graphicsObject->position.z;
+    float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY-0.1f, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ));
+    m_pWorld->rayTest(btVector3(positionX, positionY-0.1f, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
+    return rayCallbackCenter.hasHit();
+}
+
+bool Game::isInTheDepth(Object* object) {
+    float positionX = object->graphicsObject->position.x;
+    float positionY = object->graphicsObject->position.y;
+    float positionZ = object->graphicsObject->position.z;
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY, DEPTH_TEST_RANGE));
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY, DEPTH_TEST_RANGE), rayCallbackCenter);
     if (rayCallbackCenter.hasHit()) {
+        //cout << "Smth is in the depth" << endl;
+        btTransform trans = rayCallbackCenter.m_collisionObject->getWorldTransform();
+        player->leverPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
         return true;
     }
     else {
+        //cout << "Nothing is there!" << endl;
         return false;
     }
 }
@@ -270,14 +280,27 @@ void Game::draw() {
     background->draw();
     if (Debug)
         m_pWorld->debugDrawWorld();
+
     for (Object* object : objects) {
-        if (object->tag == LIGHT) {
-            object->graphicsObject->renderModel(shaders.find("lightShader")->second);
-        }
-        else {
             object->graphicsObject->renderModel(shaders.find("objectShader")->second);
-        }
     }
+
+    for (LeverObject* lever : levers) {
+        lever->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+    }
+
+    for (PressurePlateObject* pressurePlate : pressurePlates) {
+        pressurePlate->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+    }
+
+    for (DoorObject* door : doors) {
+        door->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+    }
+
+    for (LightObject* light : lights) {
+        light->object->graphicsObject->renderModel(shaders.find("lightShader")->second);
+    }
+
     for (std::pair<std::string, UIElement*> element : UIelements) {
         Shader* shader = shaders.find("fontShader")->second;
         element.second->draw(shader);
@@ -298,31 +321,37 @@ void Game::update() {
         object->graphicsObject->position.x = trans.getOrigin().x();
         object->graphicsObject->position.y = trans.getOrigin().y();
         object->physicsObject->pRigidBody->setActivationState(ACTIVE_TAG);
-        if (object->tag == LIGHT) {
-            shaders.find("objectShader")->second->use();
-            shaders.find("objectShader")->second->setVec3("lightPosition", object->graphicsObject->position);
-        }
         if (object->tag == HERO) {
-            if (player->isFacingRight) {
-                player->hero->graphicsObject->rotate = 90.0f;
-            }
-            else {
-                player->hero->graphicsObject->rotate = -90.0f;
-            }
-            if (isOnTheGround(object)) {
-                player->hero->graphicsObject->isJumping = false;
-            }
-            else {
-                player->hero->graphicsObject->isJumping = true;
-            }
-            if (object->physicsObject->pRigidBody->getLinearVelocity().getX() != 0) {
-                object->graphicsObject->isWalking = true;
-            }
-            else {
-                object->graphicsObject->isWalking = false;
+            AnimatedGraphicsObject* heroGraphicsObject = (AnimatedGraphicsObject*)player->object->graphicsObject;
+            heroGraphicsObject->rotate = player->isFacingRight ? 90.0f : - 90.0f;
+            heroGraphicsObject->isJumping = isOnTheGround(object) ? false : true;
+            heroGraphicsObject->isWalking = (object->physicsObject->pRigidBody->getLinearVelocity().getX() != 0) ? true : false;
+        }
+    }
+
+    for (LeverObject* lever : levers) {
+        if (player->state == ACTION) {
+            if (lever->object->physicsObject->btPosition.getX() == player->leverPos.x && lever->object->physicsObject->btPosition.getY() == player->leverPos.y) {
+                lever->pull();
+                player->state = STAYING;
             }
         }
     }
+
+    for (PressurePlateObject* pressurePlate : pressurePlates) {
+        pressurePlate->isPressed = isBelow(pressurePlate->object) ? true : false;
+        pressurePlate->update();
+    }
+
+    for (DoorObject* door : doors) {
+        door->update();
+    }
+
+    for (LightObject* light : lights) {
+        shaders.find("objectShader")->second->use();
+        shaders.find("objectShader")->second->setVec3("lightPosition", light->object->graphicsObject->position);
+    }
+
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = camera->GetViewMatrix();

@@ -143,34 +143,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedGraphicsObject.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="debugDrawer.cpp" />
+    <ClCompile Include="DoorObject.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GraphicsObject.cpp" />
     <ClCompile Include="Hero.cpp" />
+    <ClCompile Include="LeverObject.cpp" />
+    <ClCompile Include="LightObject.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PhysicsObject.cpp" />
+    <ClCompile Include="PressurePlateObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedGraphicsObject.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="debugDrawer.h" />
+    <ClInclude Include="DoorObject.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Hero.h" />
+    <ClInclude Include="LeverObject.h" />
+    <ClInclude Include="LightObject.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PhysicsObject.h" />
+    <ClInclude Include="PressurePlateObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextureManager.h" />

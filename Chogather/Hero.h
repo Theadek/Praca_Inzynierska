@@ -1,7 +1,11 @@
 #pragma once
 #include "Object.h"
+#include "AnimatedGraphicsObject.h"
 #define SPEED 3.0
 #define JUMP_HEIGHT 12.0
+#define positionOnZ 0.0
+#define JUMP_MODELS 0
+#define WALK_MODELS 20
 enum Movement {
     JUMP = 0,
     CROUCH = 1,
@@ -13,16 +17,22 @@ enum Movement {
 enum State {
     STAYING,
     JUMPING,
-    WALKING
+    WALKING,
+    CROUCHING,
+    ACTION
 };
 class Hero
 {
+    static bool isLoaded;
+    std::vector<Model*> modelsForJumpAnimation;
+    std::vector<Model*> modelsForWalkAnimation;
 public:
-    Object* hero;
+    Object* object;
     float speed, jump_height;
     State state;
+    glm::vec2 leverPos;
     bool isFacingRight = true;
-    Hero(Object* object);
+    Hero(glm::vec2 position, glm::vec3 scale);
     void Move(Movement playerChoice);
 };
 

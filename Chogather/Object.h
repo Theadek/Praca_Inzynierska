@@ -5,17 +5,13 @@
 #include "PhysicsObject.h"
 #include "GraphicsObject.h"
 
-enum TAG {
-    HERO,
-    PLATFORM,
-    LIGHT
-};
 class Object
 {
 public:
     GraphicsObject* graphicsObject;
     PhysicsObject* physicsObject;
     TAG tag;
+    Object();
     Object(GraphicsObject* graphicsObject, PhysicsObject* physicsObject, TAG tag);
 };
 

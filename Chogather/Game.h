@@ -16,14 +16,20 @@
 #include "stb_image.h"
 #include "debugDrawer.h"
 #include "Background.h"
+#include "AnimatedGraphicsObject.h"
+#include "DoorObject.h"
+#include "LeverObject.h"
+#include "PressurePlateObject.h"
+#include "LightObject.h"
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
+
 #define GRAVITY -20
-#define JUMP_MODELS 0
-#define WALK_MODELS 20
+#define DEPTH_TEST_RANGE -5.0f
+
 class Game
 {
 public:
@@ -41,6 +47,10 @@ public:
     static Background* background;
     std::map <std::string, Model> models;
     std::vector <Object*> objects;
+    std::vector <LeverObject*> levers;
+    std::vector <DoorObject*> doors;
+    std::vector <PressurePlateObject*> pressurePlates;
+    std::vector <LightObject*> lights;
     std::map <std::string, Shader*> shaders;
     std::map <std::string, Font* > fonts;
     std::map <std::string, UIElement* > UIelements;
@@ -66,6 +76,8 @@ public:
     void processInput();
     void initPhysics();
     bool isOnTheGround(Object* object);
+    bool isBelow(Object* object);
+    bool isInTheDepth(Object* object);
     void draw();
     void update();
 
