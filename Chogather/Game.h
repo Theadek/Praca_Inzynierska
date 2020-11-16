@@ -20,6 +20,7 @@
 #include "DoorObject.h"
 #include "LeverObject.h"
 #include "PressurePlateObject.h"
+#include "ChestObject.h"
 #include "LightObject.h"
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
@@ -50,6 +51,7 @@ public:
     std::vector <LeverObject*> levers;
     std::vector <DoorObject*> doors;
     std::vector <PressurePlateObject*> pressurePlates;
+    std::vector <ChestObject*> chests;
     std::vector <LightObject*> lights;
     std::map <std::string, Shader*> shaders;
     std::map <std::string, Font* > fonts;
@@ -77,6 +79,8 @@ public:
     void initPhysics();
     bool isOnTheGround(Object* object);
     bool isBelow(Object* object);
+    bool isOnTheWallLeft(Object* object);
+    bool isOnTheWallRight(Object* object);
     bool isInTheDepth(Object* object);
     void draw();
     void update();

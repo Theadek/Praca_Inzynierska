@@ -29,8 +29,10 @@ public:
     float maxX, maxY, maxZ, minX, minY, minZ;
     glm::vec3 size;
     void draw(Shader* shader);
-    //btCollisionShape* pCollisionBox;
-    Model(string const& path, bool gamma = false);
+    bool meshCollision;
+    btCollisionShape* pCollisionBox;
+    btTriangleMesh* btMesh;
+    Model(string const& path, bool meshCollision = false, bool gamma = false);
     ~Model();
 private:
 

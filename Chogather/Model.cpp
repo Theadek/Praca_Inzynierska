@@ -3,7 +3,7 @@
 using namespace std;
 
 
-Model::Model(string const& path, bool gamma)
+Model::Model(string const& path, bool meshCollision, bool gamma)
 {
     gammaCorrection = gamma;
     minX = INT_MAX;
@@ -13,6 +13,8 @@ Model::Model(string const& path, bool gamma)
     maxY = INT_MIN;
     maxZ = INT_MIN;
     //this->pCollisionBox = new btConvexHullShape();
+    this->btMesh = new btTriangleMesh();
+    this->meshCollision = meshCollision;
     loadModel(path);
     size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
 }
@@ -37,6 +39,9 @@ void Model::loadModel(string const &path)
     directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
+    if (meshCollision) {
+        pCollisionBox = new btBvhTriangleMeshShape(btMesh, true);
+    }
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -94,9 +99,27 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
         }
         vertices.push_back(vertex);
-        //btVector3 btv = btVector3(vertex.Position.x, vertex.Position.y, vertex.Position.z);
-        //((btConvexHullShape*)pCollisionBox)->addPoint(btv);
+        /*if (meshCollision) {
+            btVector3 btv = btVector3(vertex.Position.x, vertex.Position.y, vertex.Position.z);
+            ((btConvexHullShape*)pCollisionBox)->addPoint(btv);
+        }*/
     }
+
+    if (meshCollision) {
+        for (int i = 0; i < mesh->mNumVertices; i += 3)
+        {
+            Vertex v1 = vertices[i];
+            Vertex v2 = vertices[i + 1];
+            Vertex v3 = vertices[i + 2];
+
+            btVector3 bv1 = btVector3(v1.Position[0], v1.Position[1], v1.Position[2]);
+            btVector3 bv2 = btVector3(v2.Position[0], v2.Position[1], v2.Position[2]);
+            btVector3 bv3 = btVector3(v3.Position[0], v3.Position[1], v3.Position[2]);
+
+            btMesh->addTriangle(bv1, bv2, bv3);
+        }
+    }
+
 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];

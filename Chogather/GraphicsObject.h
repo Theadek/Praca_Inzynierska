@@ -12,7 +12,8 @@ enum TAG {
     LIGHT,
     DOOR,
     LEVER,
-    PRESSURE_PLATE
+    PRESSURE_PLATE,
+    CHEST
 };
 class GraphicsObject
 {

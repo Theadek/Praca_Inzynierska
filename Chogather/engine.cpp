@@ -5,7 +5,7 @@
 #include "Game.h"
 
 
-Game game = Game(800, 600);
+Game game = Game(1600, 1200);
 
 
 int main()

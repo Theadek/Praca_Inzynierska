@@ -17,8 +17,7 @@ LeverObject::LeverObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate) {
     this->object->physicsObject->pRigidBody->setFriction(1.0f);
     this->object->physicsObject->pRigidBody->setRestitution(0.0f);
     this->state = false;
-    this->ID = counter;
-    counter++;
+    this->ID = ++counter;
 }
 
 void LeverObject::bind(DoorObject* door) {

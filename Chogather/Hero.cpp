@@ -24,13 +24,15 @@ Hero::Hero(glm::vec2 position, glm::vec3 scale) {
     this->object->physicsObject->pRigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 0.0f));
     this->object->physicsObject->pRigidBody->setFriction(1.0f);
     this->object->physicsObject->pRigidBody->setRestitution(0.0f);
-    this->object = new Object(graphicsObject, physicsObject, HERO);
+    this->lastPos = glm::vec3(position, positionOnZ);
+    this->isLeftWallJumpAvailable = true;
+    this->isRightWallJumpAvailable = true;
     speed = SPEED;
     jump_height = JUMP_HEIGHT;
     state = STAYING;
 }
 
-void Hero::Move(Movement playerChoice) {
+void Hero::move(Movement playerChoice) {
     float currentVelocityX = object->physicsObject->pRigidBody->getLinearVelocity().getX();
     float currentVelocityY = object->physicsObject->pRigidBody->getLinearVelocity().getY();
     switch (playerChoice) {
@@ -41,6 +43,7 @@ void Hero::Move(Movement playerChoice) {
         else
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX - speed, currentVelocityY, 0.0f));
         state = WALKING;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = true;
         break;
     case RIGHT_MOVE:
         isFacingRight = true;
@@ -49,16 +52,36 @@ void Hero::Move(Movement playerChoice) {
         else
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX + speed, currentVelocityY, 0.0f));
         state = WALKING;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = true;
         break;
     case JUMP:
         object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX, jump_height, 0.0f));
         state = JUMPING;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = true;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = false;
         break;
     case CROUCH:
         state = CROUCHING;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = false;
         break;
     case INTERACTION:
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = false;
         state = ACTION;
         break;
     }
+}
+
+void Hero::update(bool isOnTheGround) {
+    //update graphicsObject position based on physicsObject
+    btTransform trans = object->physicsObject->pRigidBody->getWorldTransform();
+    object->graphicsObject->position.x = trans.getOrigin().x();
+    object->graphicsObject->position.y = trans.getOrigin().y();
+    object->physicsObject->pRigidBody->setActivationState(ACTIVE_TAG);
+
+    ((AnimatedGraphicsObject*)object->graphicsObject)->rotate = isFacingRight ? 90.0f : -90.0f;
+    ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = !isOnTheGround;
+    ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = (lastPos == object->graphicsObject->position) ? false : true;
+    lastPos = object->graphicsObject->position;
 }
