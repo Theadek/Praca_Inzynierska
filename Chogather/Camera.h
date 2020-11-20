@@ -139,6 +139,20 @@ public:
         Up = glm::normalize(glm::cross(Right, Front));
     }
 
+    void WatchObject2(glm::vec3 target1, glm::vec3 target2, float lerpSpeed, float deltaTime) {
+        glm::vec3 desiredPosition = (target1 + target2) / 2.0f;
+        desiredPosition.z += OFFSET_Z + glm::distance(target1, target2);
+        desiredPosition.y += OFFSET_Y;
+        if (deltaTime * lerpSpeed >= 1.0f)
+            Position = desiredPosition;
+        else
+            Position = Position + (desiredPosition - Position) * lerpSpeed * deltaTime;
+
+        Front = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+        Right = glm::normalize(glm::cross(Front, WorldUp));
+        Up = glm::normalize(glm::cross(Right, Front));
+    }
+
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors()

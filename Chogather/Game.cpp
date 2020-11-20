@@ -62,7 +62,7 @@ void Game::loadObjects() {
     PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f,  5.15f), glm::vec3(0.2f, 0.1f, 0.2f), 0.0f);
     pressurePlate->bind(door2);
     lever->bind(door);
-    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 20.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f);
+    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f);
     ChestObject* chest = new ChestObject(glm::vec3(1.0f, 10.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), -90.0f);
 
     player = hero;
@@ -405,7 +405,7 @@ void Game::update() {
     }
 
     if(!Debug)
-        camera->WatchObject(player->object->graphicsObject->position, 0.9, deltaTime);
+        camera->WatchObject2(player->object->graphicsObject->position, chests[0]->object->graphicsObject->position, 0.9, deltaTime);
 
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
