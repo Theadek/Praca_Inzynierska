@@ -6,7 +6,10 @@ float Game::lastX;
 float Game::lastY;
 bool Game::firstMouse;
 bool Game::Debug;
-
+int Game::menuChoice;
+LevelObject* Game::actualLevel;
+bool Game::multiplayer;
+Key Game::actualKey;
 Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     camera = new Camera(glm::vec3(0.0f, 0.5f, 12.0f));
     SCR_HEIGHT = HEIGHT;
@@ -15,18 +18,25 @@ Game::Game(unsigned int WIDTH, unsigned int HEIGHT) {
     Debug = false;
     lastX = SCR_WIDTH / 2;
     lastY = SCR_HEIGHT / 2;
+    actualState = GameState_PLAYERS;
+    menuChoice = 0;
+    actualKey = Key_NOTHING;
+    multiplayer = false;
 }
+
 
 Game::~Game() {
     glfwTerminate();
 }
 
 
-
 void Game::loadModels() {
 
     Model level1("Models/Level1/Level1.obj", true);
     models.insert({ "level1", level1 });
+
+    Model level2("Models/Level2/Level2.obj", true);
+    models.insert({ "level2", level2 });
 }
 
 void Game::loadTextures() {
@@ -44,43 +54,50 @@ void Game::loadShaders() {
 
 void Game::loadObjects() {
 
-
-    //level1 ----------------------------------------------------------------
-    GraphicsObject* levelG = new GraphicsObject(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), -90.0f, &models.find("level1")->second);
-    PhysicsObject* levelP = new PhysicsObject(levelG, 0.0f);
-    Object* level = new Object(levelG, levelP, PLATFORM);
-    level->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 0.0f));
-    level->physicsObject->pRigidBody->setFriction(1.0f);
-    level->physicsObject->pRigidBody->setRestitution(0.0f);
-
-    //-------------------------------------------------------------------
-
-    Hero* hero = new Hero(glm::vec2(-5.0f, 7.0f), glm::vec3(0.15f, 0.15f, 0.15f));
-    DoorObject* door = new DoorObject(glm::vec2(-1.7f, 7.0f), glm::vec3(0.25f, 0.25f, 0.25f), -90.0f);
-    DoorObject* door2 = new DoorObject(glm::vec2(-1.2f, 10.0f), glm::vec3(0.25f, 0.25f, 0.25f), -90.0f);
-    LeverObject* lever = new LeverObject(glm::vec2(-3.5f, 6.0f), glm::vec3(0.1f, 0.1f, 0.1f), -90.0f);
-    PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f,  5.15f), glm::vec3(0.2f, 0.1f, 0.2f), 0.0f);
-    pressurePlate->bind(door2);
+    Hero* playerSingleplayerLevel1 = new Hero(glm::vec2(-5.0f, 7.0f));
+    Hero* playerSingleplayerLevel2 = new Hero(glm::vec2(-5.0f, 7.0f));
+    Hero* player1MultiplayerLevel1 = new Hero(glm::vec2(-5.0f, 13.0f));
+    Hero* player2MultiplayerLevel1 = new Hero(glm::vec2(0.0f, 16.0f));
+    DoorObject* door = new DoorObject(glm::vec2(-1.7f, 7.0f));
+    DoorObject* door2 = new DoorObject(glm::vec2(-1.2f, 10.0f));
+    DoorObject* door3 = new DoorObject(glm::vec2(-1.2f, 10.0f));
+    LeverObject* lever = new LeverObject(glm::vec2(-3.5f, 6.0f));
+    PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f, 5.15f));
     lever->bind(door);
-    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f);
-    ChestObject* chest = new ChestObject(glm::vec3(1.0f, 10.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), -90.0f);
+    pressurePlate->bind(door2);
+    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
+    LightObject* light2 = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
+    LightObject* light3 = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
+    ChestObject* chest = new ChestObject(glm::vec3(1.0f, 10.0f, 0.0f));
 
-    player = hero;
-    objects.push_back(level);
-    doors.push_back(door);
-    doors.push_back(door2);
-    levers.push_back(lever);
-    pressurePlates.push_back(pressurePlate);
-    chests.push_back(chest);
-    lights.push_back(light);
-    m_pWorld->addRigidBody(hero->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(door2->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(lever->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(chest->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(pressurePlate->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(light->object->physicsObject->pRigidBody);
-    m_pWorld->addRigidBody(level->physicsObject->pRigidBody);
+
+    //first singleplayerLevel
+    SingleplayerLevelObject* singleplayerLevel1 = new SingleplayerLevelObject(&models.find("level1")->second, glm::vec2(2.0f, 9.0f), camera, SCR_WIDTH, SCR_HEIGHT);
+    singleplayerLevel1->doors.push_back(door);
+    singleplayerLevel1->levers.push_back(lever);
+    singleplayerLevel1->pressurePlates.push_back(pressurePlate);
+    singleplayerLevel1->chests.push_back(chest);
+    singleplayerLevel1->lights.push_back(light);
+    singleplayerLevel1->doors.push_back(door2);
+    singleplayerLevel1->hero = playerSingleplayerLevel1;
+    singleplayerLevel1->loadLevel();
+    singleplayerLevels.push_back(singleplayerLevel1);
+
+    //second singleplayerLevel
+    SingleplayerLevelObject* singleplayerLevel2 = new SingleplayerLevelObject(&models.find("level2")->second, glm::vec2(-1.0f, 9.0f), camera, SCR_WIDTH, SCR_HEIGHT);
+    singleplayerLevel2->hero = playerSingleplayerLevel2;
+    singleplayerLevel2->lights.push_back(light2);
+    singleplayerLevel2->loadLevel();
+    singleplayerLevels.push_back(singleplayerLevel2);
+
+    //first multiplayerLevel
+    MultiplayerLevelObject* multiplayerLevel1 = new MultiplayerLevelObject(&models.find("level2")->second, glm::vec2(-5.0f, 7.0f), camera, SCR_WIDTH, SCR_HEIGHT);
+    multiplayerLevel1->doors.push_back(door3);
+    multiplayerLevel1->hero = player1MultiplayerLevel1;
+    multiplayerLevel1->hero2 = player2MultiplayerLevel1;
+    multiplayerLevel1->lights.push_back(light3);
+    multiplayerLevel1->loadLevel();
+    multiplayerLevels.push_back(multiplayerLevel1);
 }
 
 void Game::loadFonts()
@@ -93,8 +110,38 @@ void Game::createUIElements()
 {
     Font* chinaTown = fonts.find("ChinaTown")->second;
 
-    UIElement* logo = new UIText(20.0f, 20.0f, 1.0f, "ChoGather", chinaTown, glm::vec3(1.0f, 0.0f, 0.0f));
-    UIelements.insert({ "logo", logo });
+    float textSize = chinaTown->sizeOfText("ChoGather", 3.0f);
+    UIElement* menuLogo = new UIText(((SCR_WIDTH/2) - textSize /2), SCR_HEIGHT * 0.75, 3.0f, "ChoGhater", chinaTown, glm::vec3(0.4f, 0.0f, 0.8f));
+    startMenuUIelements.insert({ "menuLogo", menuLogo });
+
+    std::string numberOfPlayers1 = "1 Player";
+    textSize = chinaTown->sizeOfText(numberOfPlayers1, 1.5f);
+    UIElement* numberOfPlayers1Text = new UIText(((SCR_WIDTH / 2) - textSize / 2), SCR_HEIGHT * 0.5, 1.5f, numberOfPlayers1, chinaTown, glm::vec3(0.4f, 0.0f, 0.8f));
+    startMenuUIelements.insert({ numberOfPlayers1, numberOfPlayers1Text });
+
+    std::string numberOfPlayers2 = "2 Players";
+    textSize = chinaTown->sizeOfText(numberOfPlayers2, 1.5f);
+    UIElement* numberOfPlayers2Text = new UIText(((SCR_WIDTH / 2) - textSize / 2), SCR_HEIGHT * 0.4, 1.5f, numberOfPlayers2, chinaTown, glm::vec3(0.4f, 0.0f, 0.8f));
+    startMenuUIelements.insert({ numberOfPlayers2, numberOfPlayers2Text });
+
+    for (int i = 1; i <= singleplayerLevels.size(); i++) {
+        std::string levelName = "Level " + to_string(i);
+        float textSize = chinaTown->sizeOfText(levelName, 1.5f);
+        float scaleDown = 0.6 - float(i) / 10;
+        UIElement* levelText = new UIText(((SCR_WIDTH / 2) - textSize / 2), SCR_HEIGHT * scaleDown, 1.5f, levelName, chinaTown, glm::vec3(0.4f, 0.0f, 0.8f));
+        singleplayerMenuUIelements.insert({ levelName, levelText });
+    }
+
+    for (int i = 1; i <= multiplayerLevels.size(); i++) {
+        std::string levelName = "Level " + to_string(i);
+        float textSize = chinaTown->sizeOfText(levelName, 1.5f);
+        float scaleDown = 0.6 - float(i) / 10;
+        UIElement* levelText = new UIText(((SCR_WIDTH / 2) - textSize / 2), SCR_HEIGHT * scaleDown, 1.5f, levelName, chinaTown, glm::vec3(0.4f, 0.0f, 0.8f));
+        multiplayerMenuUIelements.insert({ levelName, levelText });
+    }
+
+
+
 }
 
 int Game::init() {
@@ -117,6 +164,7 @@ int Game::init() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, &framebuffer_size_callback);
     glfwSetCursorPosCallback(window, &mouse_callback);
+    glfwSetKeyCallback(window, &key_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -131,11 +179,9 @@ int Game::init() {
     background = new Background();
     loadModels();
     loadShaders();
-    initPhysics();
     loadObjects();
     loadFonts();
     createUIElements();
-    camera->TeleportToPosition(player->object->graphicsObject->position);
     return 1;
 }
 
@@ -156,58 +202,154 @@ void Game::toggleDebug() {
 
 void Game::processInput()
 {
-    if (Debug) {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera->ProcessKeyboard(FORWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera->ProcessKeyboard(BACKWARD, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera->ProcessKeyboard(LEFT, deltaTime);
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera->ProcessKeyboard(RIGHT, deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if ((glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)) {
-        if (isOnTheGround(player->object)) {
-            player->isLeftWallJumpAvailable = true;
-            player->isRightWallJumpAvailable = true;
-            player->move(JUMP);
+    //GAME
+    if (actualState == GameState_GAME) {
+        if (Debug) {
+            if (glfwGetKey(window, GLFW_KEY_KP_8) == GLFW_PRESS)
+                camera->ProcessKeyboard(FORWARD, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_KP_2) == GLFW_PRESS)
+                camera->ProcessKeyboard(BACKWARD, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS)
+                camera->ProcessKeyboard(LEFT, deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
+                camera->ProcessKeyboard(RIGHT, deltaTime);
         }
-        else if (isOnTheWallLeft(player->object) && (player->isLeftWallJumpAvailable)) {
-            player->isLeftWallJumpAvailable = false;
-            player->isRightWallJumpAvailable = true;
-            player->move(JUMP);
+        //first player move
+        if (actualKey == Key_UP) {
+            if (actualLevel->isOnTheGround(player)) {
+                player->isLeftWallJumpAvailable = true;
+                player->isRightWallJumpAvailable = true;
+                player->move(JUMP);
+            }
+            else if (actualLevel->isOnTheWallLeft(player) && (player->isLeftWallJumpAvailable)) {
+                player->isLeftWallJumpAvailable = false;
+                player->isRightWallJumpAvailable = true;
+                player->move(JUMP);
+            }
+            else if (actualLevel->isOnTheWallRight(player) && (player->isRightWallJumpAvailable)) {
+                player->isRightWallJumpAvailable = false;
+                player->isLeftWallJumpAvailable = true;
+                player->move(JUMP);
+            }
         }
-        else if (isOnTheWallRight(player->object) && (player->isRightWallJumpAvailable)) {
-            player->isRightWallJumpAvailable = false;
-            player->isLeftWallJumpAvailable = true;
-            player->move(JUMP);
+        if (actualKey == Key_SPACE) {
+            if (actualLevel->isInTheDepth(player)) {
+                player->move(INTERACTION);
+            }
         }
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        player->move(CROUCH);
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        player->move(RIGHT_MOVE);
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        player->move(LEFT_MOVE);
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            player->move(RIGHT_MOVE);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            player->move(LEFT_MOVE);
+        //second player move
+        if (player2 != NULL) {
+            if (actualKey == Key_W) {
+                if (actualLevel->isOnTheGround(player2)) {
+                    player2->isLeftWallJumpAvailable = true;
+                    player2->isRightWallJumpAvailable = true;
+                    player2->move(JUMP);
+                }
+                else if (actualLevel->isOnTheWallLeft(player2) && (player2->isLeftWallJumpAvailable)) {
+                    player2->isLeftWallJumpAvailable = false;
+                    player2->isRightWallJumpAvailable = true;
+                    player2->move(JUMP);
+                }
+                else if (actualLevel->isOnTheWallRight(player2) && (player2->isRightWallJumpAvailable)) {
+                    player2->isRightWallJumpAvailable = false;
+                    player2->isLeftWallJumpAvailable = true;
+                    player2->move(JUMP);
+                }
+            }
+            if (actualKey == Key_Q) {
+                if (actualLevel->isInTheDepth(player2)) {
+                    player2->move(INTERACTION);
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                player2->move(RIGHT_MOVE);
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                player2->move(LEFT_MOVE);
+        }
+        //exit
+        if (actualKey == Key_ESCAPE)
+            actualState = GameState_MENU;
 
-
-    //we have to change it ----------------------------------------------------------------
-    //space handle
-    static int oldState = GLFW_RELEASE;
-    int newState = glfwGetKey(window, GLFW_KEY_SPACE);
-    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
-        if (isInTheDepth(player->object)) {
-            player->move(INTERACTION);
+        toggleDebug();
+    }
+    //SINGLE OR MULTIPLAYER
+    else if (actualState == GameState_PLAYERS) {
+        if (actualKey == Key_UP || actualKey == Key_DOWN)
+            multiplayer = !multiplayer;
+        if (actualKey == Key_ENTER)
+            actualState = GameState_MENU;
+        if (actualKey == Key_ESCAPE)
+            glfwSetWindowShouldClose(window, true);
+    }
+    //MENU
+    else if (actualState == GameState_MENU) {
+        if (actualKey == Key_ENTER) {
+            actualState = GameState_GAME;
+            if (multiplayer) {
+                player = multiplayerLevels[menuChoice]->hero;
+                player->resetPosition();
+                player2 = multiplayerLevels[menuChoice]->hero2;
+                player2->resetPosition();
+                actualLevel = multiplayerLevels[menuChoice];
+                camera->TeleportToPosition(player->object->graphicsObject->position);
+            }
+            else {
+                player = singleplayerLevels[menuChoice]->hero;
+                player->resetPosition();
+                actualLevel = singleplayerLevels[menuChoice];
+                camera->TeleportToPosition(player->object->graphicsObject->position);
+            }
+        }
+        else if (actualKey == Key_UP) {
+            menuChoice--;
+            if (menuChoice < 0)
+                menuChoice = multiplayer ? multiplayerLevels.size() - 1 : singleplayerLevels.size() - 1;
+        }
+        else if (actualKey == Key_DOWN) {
+            menuChoice++;
+            if (multiplayer) {
+                if (menuChoice > multiplayerLevels.size() - 1)
+                    menuChoice = 0;
+            }
+            else {
+                if (menuChoice > singleplayerLevels.size() - 1)
+                    menuChoice = 0;
+            }
+        }
+        else if (actualKey == Key_ESCAPE) {
+            actualState = GameState_PLAYERS;
+            menuChoice = 0;
         }
     }
-    oldState = newState;
-    //-------------------------------------------------------------------------------------
-
-    toggleDebug();
+    actualKey = Key_NOTHING;
 }
-
+void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+        actualKey = Key_ENTER;
+    }
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        actualKey = Key_ESCAPE;
+    }
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+        actualKey = Key_UP;
+    }
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+        actualKey = Key_DOWN;
+    }
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        actualKey = Key_SPACE;
+    }
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+        actualKey = Key_W;
+    }
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        actualKey = Key_Q;
+    }
+}
 
 void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -234,134 +376,53 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void Game::initPhysics() {
-    m_pBroadphase = new btDbvtBroadphase();
-    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
-    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
-    m_pSolver = new btSequentialImpulseConstraintSolver;
-    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
-    m_pWorld->setGravity(btVector3(0.0, GRAVITY, 0.0));
-
-    debugDrawerObject = new debugDrawer(camera, SCR_WIDTH, SCR_HEIGHT);
-    m_pWorld->setDebugDrawer(debugDrawerObject);
-}
-
-bool Game::isOnTheGround(Object* object) {
-    float positionX = object->graphicsObject->position.x;
-    float positionY = object->graphicsObject->position.y;
-    float positionZ = object->graphicsObject->position.z;
-    float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
-    float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
-    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
-    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
-
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackCenter);
-    m_pWorld->rayTest(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackLeft);
-    m_pWorld->rayTest(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackRight);
-
-    return (rayCallbackCenter.hasHit() || rayCallbackLeft.hasHit() || rayCallbackRight.hasHit());
-}
-
-bool Game::isBelow(Object* object) {
-    float positionX = object->graphicsObject->position.x;
-    float positionY = object->graphicsObject->position.y;
-    float positionZ = object->graphicsObject->position.z;
-    float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
-    btCollisionWorld::AllHitsRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
-    if (rayCallbackCenter.m_collisionObjects.size() == 3) {  // 1 for floor, 1 for itself, 1 for object on the top
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-bool Game::isOnTheWallLeft(Object* object) {
-    float positionX = object->graphicsObject->position.x;
-    float positionY = object->graphicsObject->position.y;
-    float positionZ = object->graphicsObject->position.z;
-    float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), rayCallbackLeft);
-    if (rayCallbackLeft.hasHit()) {
-        return true;
-    }
-    return false;
-
-}
-
-bool Game::isOnTheWallRight(Object* object) {
-    float positionX = object->graphicsObject->position.x;
-    float positionY = object->graphicsObject->position.y;
-    float positionZ = object->graphicsObject->position.z;
-    float halfOfSizeWithScaleX = object->graphicsObject->model->size.x * object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), rayCallbackRight);
-    if (rayCallbackRight.hasHit()) {
-        return true;
-    }
-    return false;
-}
-
-bool Game::isInTheDepth(Object* object) {
-    float positionX = object->graphicsObject->position.x;
-    float positionY = object->graphicsObject->position.y;
-    float positionZ = object->graphicsObject->position.z;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY, DEPTH_TEST_RANGE));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY, DEPTH_TEST_RANGE), rayCallbackCenter);
-    if (rayCallbackCenter.hasHit()) {
-        //We have to store object position bcs we dont have our rayCast system, later we will check  if it is lever
-        btTransform trans = rayCallbackCenter.m_collisionObject->getWorldTransform();
-        player->leverPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
-        //cout << "Smth is in the depth" << endl;
-        return true;
-    }
-    else {
-        //cout << "Nothing is there!" << endl;
-        return false;
-    }
-}
-
 void Game::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     background->draw();
-    if (Debug)
-        m_pWorld->debugDrawWorld();
-
-    player->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
-
-    for (Object* object : objects) {
-            object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+    if (actualState == GameState_GAME) {
+        if (Debug)
+            actualLevel->m_pWorld->debugDrawWorld();
+        actualLevel->draw(shaders.find("objectShader")->second);
     }
-
-    for (LeverObject* lever : levers) {
-        lever->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
+    if (actualState == GameState_PLAYERS) {
+        for (std::pair<std::string, UIElement*> element : startMenuUIelements) {
+            Shader* shader = shaders.find("fontShader")->second;
+            startMenuUIelements.find("menuLogo")->second->draw(shader);
+            if (!multiplayer) {
+                glm::vec3 oldColor = ((UIText*)startMenuUIelements.find("1 Player")->second)->color;
+                ((UIText*)startMenuUIelements.find("1 Player")->second)->color += 0.2f;
+                startMenuUIelements.find("1 Player")->second->draw(shader);
+                ((UIText*)startMenuUIelements.find("1 Player")->second)->color = oldColor;
+                startMenuUIelements.find("2 Players")->second->draw(shader);
+            }
+            else {
+                startMenuUIelements.find("1 Player")->second->draw(shader);
+                glm::vec3 oldColor = ((UIText*)startMenuUIelements.find("2 Players")->second)->color;
+                ((UIText*)startMenuUIelements.find("2 Players")->second)->color += 0.2f;
+                startMenuUIelements.find("2 Players")->second->draw(shader);
+                ((UIText*)startMenuUIelements.find("2 Players")->second)->color = oldColor;
+            }
+        }
     }
-
-    for (PressurePlateObject* pressurePlate : pressurePlates) {
-        pressurePlate->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
-    }
-
-    for (DoorObject* door : doors) {
-        door->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
-    }
-
-    for (ChestObject* chest : chests) {
-        chest->object->graphicsObject->renderModel(shaders.find("objectShader")->second);
-    }
-
-    for (LightObject* light : lights) {
-        light->object->graphicsObject->renderModel(shaders.find("lightShader")->second);
-    }
-
-    for (std::pair<std::string, UIElement*> element : UIelements) {
+    if (actualState == GameState_MENU) {
         Shader* shader = shaders.find("fontShader")->second;
-        element.second->draw(shader);
+        startMenuUIelements.find("menuLogo")->second->draw(shader);
+        int iterator = 0;
+        std::map <std::string, UIElement* > levelsMenu = multiplayer ? multiplayerMenuUIelements : singleplayerMenuUIelements;
+        for (std::pair<std::string, UIElement*> element : levelsMenu) {
+            if (iterator == menuChoice) {
+                glm::vec3 oldColor = ((UIText*)element.second)->color;
+                ((UIText*)element.second)->color += 0.2f;
+                element.second->draw(shader);
+                ((UIText*)element.second)->color = oldColor;
+            }
+            else {
+                element.second->draw(shader);
+            }
+            iterator++;
+        }
     }
-
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
@@ -372,42 +433,54 @@ void Game::update() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     processInput();
-    m_pWorld->stepSimulation(deltaTime);
+    if (actualState == GameState_GAME) {
+        actualLevel->update(deltaTime);
 
-    player->update(isOnTheGround(player->object));
+        for (LightObject* light : actualLevel->lights) {
+            shaders.find("objectShader")->second->use();
+            shaders.find("objectShader")->second->setVec3("lightPosition", light->object->graphicsObject->position);
+        }
 
-    for (LeverObject* lever : levers) {
-        if (player->state == ACTION) {
-            //it shouldn't work like this, but since we don't have our rayCast system, we have to use bullet
-            if (lever->object->physicsObject->btPosition.getX() == player->leverPos.x && lever->object->physicsObject->btPosition.getY() == player->leverPos.y) {
-                lever->pull();
-                player->state = STAYING;
+    if (!Debug) {
+        if(multiplayer)
+            camera->WatchObject2(player->object->graphicsObject->position, player2->object->graphicsObject->position, 0.9, deltaTime);
+        else
+            camera->WatchObject(player->object->graphicsObject->position, 0.9, deltaTime);
+    }
+        //ENDCASE
+        if (!multiplayer && actualLevel->isInTheEnd(player)) {
+            float diamondPositionX = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getX();
+            float diamondPositionY = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getY();
+            if (player->diamondPos == glm::vec2(diamondPositionX, diamondPositionY)) {
+                if (menuChoice == (singleplayerLevels.size() - 1)) {
+                    actualState = GameState_MENU;
+                }
+                else {
+                    menuChoice++;
+                    player = singleplayerLevels[menuChoice]->hero;
+                    player->resetPosition();
+                    actualLevel = singleplayerLevels[menuChoice];
+                }
+            }
+        }
+        else if (multiplayer && (actualLevel->isInTheEnd(player) || actualLevel->isInTheEnd(player2))) {
+            float diamondPositionX = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getX();
+            float diamondPositionY = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getY();
+            if (player->diamondPos == glm::vec2(diamondPositionX, diamondPositionY) || player2->diamondPos == glm::vec2(diamondPositionX, diamondPositionY)) {
+                if (menuChoice == (multiplayerLevels.size() - 1)) {
+                    actualState = GameState_MENU;
+                }
+                else {
+                    menuChoice++;
+                    player = multiplayerLevels[menuChoice]->hero;
+                    player->resetPosition();
+                    player2 = multiplayerLevels[menuChoice]->hero2;
+                    player2->resetPosition();
+                    actualLevel = multiplayerLevels[menuChoice];
+                }
             }
         }
     }
-
-    for (PressurePlateObject* pressurePlate : pressurePlates) {
-        pressurePlate->isPressed = isBelow(pressurePlate->object) ? true : false;
-        pressurePlate->update();
-    }
-
-    for (DoorObject* door : doors) {
-        door->update();
-    }
-
-    for (ChestObject* chest : chests) {
-        chest->update();
-    }
-
-    for (LightObject* light : lights) {
-        shaders.find("objectShader")->second->use();
-        shaders.find("objectShader")->second->setVec3("lightPosition", light->object->graphicsObject->position);
-    }
-
-    if(!Debug)
-        camera->WatchObject2(player->object->graphicsObject->position, chests[0]->object->graphicsObject->position, 0.9, deltaTime);
-
-
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = camera->GetViewMatrix();
     //glm::mat4 view = glm::lookAt(glm::vec3(10, 6, 25), glm::vec3(5, 3, 0), glm::vec3(0.0f, 1.0f, 0.0f));

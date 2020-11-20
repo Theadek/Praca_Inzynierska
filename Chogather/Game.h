@@ -4,8 +4,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include "Game.h"
-#include "Camera.h"
 #include "Model.h"
 #include "Object.h"
 #include "Hero.h"
@@ -14,28 +12,36 @@
 #include "UIElement.h"
 #include "UIText.h"
 #include "stb_image.h"
-#include "debugDrawer.h"
 #include "Background.h"
 #include "AnimatedGraphicsObject.h"
-#include "DoorObject.h"
-#include "LeverObject.h"
-#include "PressurePlateObject.h"
-#include "ChestObject.h"
-#include "LightObject.h"
-#include <BulletDynamics/Dynamics/btRigidBody.h>
-#include <BulletDynamics/Dynamics/btDynamicsWorld.h>
+#include "SingleplayerLevelObject.h"
+#include "MultiplayerLevelObject.h"
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
+enum GameState {
+    GameState_PLAYERS,
+    GameState_MENU,
+    GameState_GAME
+};
 
-#define GRAVITY -20
-#define DEPTH_TEST_RANGE -5.0f
+enum Key {
+    Key_SPACE,
+    Key_UP,
+    Key_Q,
+    Key_W,
+    Key_DOWN,
+    Key_ENTER,
+    Key_ESCAPE,
+    Key_NOTHING
+};
 
 class Game
 {
 public:
     GLFWwindow* window = nullptr;
     Hero* player;
+    Hero* player2;
     float deltaTime = 0.0f;
     unsigned int SCR_WIDTH;
     unsigned int SCR_HEIGHT;
@@ -45,24 +51,20 @@ public:
     static bool Debug;
     static Camera* camera;
     static Background* background;
+    GameState actualState;
+    static LevelObject* actualLevel;
+    static int menuChoice;
+    static Key actualKey;
+    static bool multiplayer;
     std::map <std::string, Model> models;
-    std::vector <Object*> objects;
-    std::vector <LeverObject*> levers;
-    std::vector <DoorObject*> doors;
-    std::vector <PressurePlateObject*> pressurePlates;
-    std::vector <ChestObject*> chests;
-    std::vector <LightObject*> lights;
+    std::vector <SingleplayerLevelObject*> singleplayerLevels;
+    std::vector <MultiplayerLevelObject*> multiplayerLevels;
     std::map <std::string, Shader*> shaders;
     std::map <std::string, Font* > fonts;
     std::map <std::string, UIElement* > UIelements;
-    //physics
-    btBroadphaseInterface* m_pBroadphase;
-    btDefaultCollisionConfiguration* m_pCollisionConfiguration;
-    btCollisionDispatcher* m_pDispatcher;
-    btConstraintSolver* m_pSolver;
-    btDynamicsWorld* m_pWorld;
-    btIDebugDraw* debugDrawerObject;
-    //end of physics
+    std::map <std::string, UIElement* > startMenuUIelements;
+    std::map <std::string, UIElement* > singleplayerMenuUIelements;
+    std::map <std::string, UIElement* > multiplayerMenuUIelements;
     Game(unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
     ~Game();
     int init();
@@ -74,13 +76,8 @@ public:
     void createUIElements();
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void processInput();
-    void initPhysics();
-    bool isOnTheGround(Object* object);
-    bool isBelow(Object* object);
-    bool isOnTheWallLeft(Object* object);
-    bool isOnTheWallRight(Object* object);
-    bool isInTheDepth(Object* object);
     void draw();
     void update();
 

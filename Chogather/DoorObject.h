@@ -11,7 +11,7 @@ public:
     bool isOpen;
     bool isTriggered;
     Object* object;
-    DoorObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate);
+    DoorObject(glm::vec2 position);
     void update();
 };
 

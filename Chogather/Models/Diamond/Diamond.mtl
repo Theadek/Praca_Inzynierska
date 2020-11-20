@@ -1,0 +1,13 @@
+# Blender MTL File: 'None'
+# Material Count: 1
+
+newmtl wire_000000000
+Ns 31.999996
+Ka 0.872340 0.872340 0.872340
+Kd 0.000000 0.000000 0.000000
+Ks 0.442199 0.442199 0.442199
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd Material_1189.jpg

@@ -11,7 +11,7 @@ public:
     bool state;
     vector<DoorObject*> bindedObjects;
     Object* object;
-    LeverObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate);
+    LeverObject(glm::vec2 position);
     void bind(DoorObject* door);
     void pull();
 };

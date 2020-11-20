@@ -3,11 +3,11 @@
 int PressurePlateObject::counter = 0;
 Model* PressurePlateObject::pressurePlateModel = NULL;
 
-PressurePlateObject::PressurePlateObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate) {
+PressurePlateObject::PressurePlateObject(glm::vec2 position) {
     if (!pressurePlateModel) {
         pressurePlateModel = new Model("Models/PressurePlate/PressurePlate.obj");
     }
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), scale, rotate, pressurePlateModel);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(0.3f, 0.1f, 0.3f), 0.0f, pressurePlateModel);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, PRESSURE_PLATE);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));

@@ -1,5 +1,6 @@
 #pragma once
-#include "Game.h"
+#include "Camera.h"
+#include "Shader.h"
 #include <LinearMath/btIDebugDraw.h>
 class debugDrawer : public btIDebugDraw {
 

@@ -22,7 +22,7 @@ class Font
 public:
     Font(const char* font_path);
     void RenderText(Shader* shader, std::string text, float x, float y, float scale, glm::vec3 color);
-
+    float sizeOfText(std::string text, float scale);
 
 private:
     GLuint VAO, VBO;

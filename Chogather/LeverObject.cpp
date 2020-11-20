@@ -4,12 +4,12 @@ int LeverObject::counter = 0;
 Model* LeverObject::leverModel = NULL;
 Model* LeverObject::closedLeverModel = NULL;
 
-LeverObject::LeverObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate) {
+LeverObject::LeverObject(glm::vec2 position) {
     if (!leverModel || !closedLeverModel) {
-        leverModel = new Model("Models/Lever/lever.obj");
-        closedLeverModel = new Model("Models/Lever/closedLever.obj");
+        leverModel = new Model("Models/Lever/leverTest.obj");
+        closedLeverModel = new Model("Models/Lever/closedLeverTest.obj");
     }
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), scale, rotate, leverModel);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, leverModel);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, LEVER);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));

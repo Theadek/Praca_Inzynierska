@@ -106,3 +106,13 @@ void Font::RenderText(Shader* shader, std::string text, float x, float y, float 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+float Font::sizeOfText(std::string text, float scale) {
+    std::string::const_iterator it;
+    float sum = 0;
+    for (it = text.begin(); it != text.end(); it++) {
+        Character ch = Characters[*it];
+        sum += ch.Advance >> 6;
+    }
+    return sum * scale;
+}

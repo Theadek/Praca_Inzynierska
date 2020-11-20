@@ -1,13 +1,12 @@
 #pragma once
 #include "Object.h"
 #define positionOnZ 0.0f
-
-class ChestObject : protected Object
+class Diamond : protected Object
 {
-    static Model* chestModel;
+    static Model* diamondModel;
 public:
     Object* object;
-    ChestObject(glm::vec2 position);
+    Diamond(glm::vec2 position);
     void update();
 };
 

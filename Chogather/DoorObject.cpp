@@ -2,11 +2,11 @@
 
 Model* DoorObject::doorModel = NULL;
 
-DoorObject::DoorObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate) {
+DoorObject::DoorObject(glm::vec2 position) {
     if (!doorModel) {
         doorModel = new Model("Models/Door/door.obj");
     }
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), scale, rotate, doorModel);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, doorModel);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, DOOR);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));

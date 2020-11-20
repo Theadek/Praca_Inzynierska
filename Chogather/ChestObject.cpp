@@ -2,11 +2,11 @@
 
 Model* ChestObject::chestModel = NULL;
 
-ChestObject::ChestObject(glm::vec2 position, glm::vec3 scale, GLfloat rotate) {
+ChestObject::ChestObject(glm::vec2 position) {
     if (!chestModel) {
-        chestModel = new Model("Models/cube/cube.obj");
+        chestModel = new Model("Models/Chest/chest.obj");
     }
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), scale, rotate, chestModel);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, chestModel);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, CHEST);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 0.0f));

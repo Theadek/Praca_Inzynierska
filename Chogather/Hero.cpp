@@ -1,8 +1,9 @@
 #include "Hero.h"
 
 bool Hero::isLoaded = false;
-
-Hero::Hero(glm::vec2 position, glm::vec3 scale) {
+std::vector<Model*> Hero::modelsForJumpAnimation;
+std::vector<Model*> Hero::modelsForWalkAnimation;
+Hero::Hero(glm::vec2 position) {
     if (!isLoaded) {
         for (int i = 1; i <= JUMP_MODELS; i++) {
             string jumpModelName = (i < 10) ? "Models/Jump/jump_00000" + to_string(i) + ".obj" : "Models/Jump/jump_0000" + to_string(i) + ".obj";
@@ -17,7 +18,7 @@ Hero::Hero(glm::vec2 position, glm::vec3 scale) {
         }
         isLoaded = true;
     }
-    AnimatedGraphicsObject* graphicsObject = new AnimatedGraphicsObject(glm::vec3(position, positionOnZ), scale, 90.0f, modelsForWalkAnimation, modelsForJumpAnimation);
+    AnimatedGraphicsObject* graphicsObject = new AnimatedGraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(0.15f, 0.15f, 0.15f), 90.0f, modelsForWalkAnimation, modelsForJumpAnimation);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, HERO);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 1.0f));
@@ -27,8 +28,9 @@ Hero::Hero(glm::vec2 position, glm::vec3 scale) {
     this->lastPos = glm::vec3(position, positionOnZ);
     this->isLeftWallJumpAvailable = true;
     this->isRightWallJumpAvailable = true;
-    speed = SPEED;
-    jump_height = JUMP_HEIGHT;
+    this->speed = SPEED;
+    this->jump_height = JUMP_HEIGHT;
+    this->startPosition = position;
     state = STAYING;
 }
 
@@ -42,8 +44,9 @@ void Hero::move(Movement playerChoice) {
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(-speed, currentVelocityY, 0.0f));
         else
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX - speed, currentVelocityY, 0.0f));
-        state = WALKING;
         ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = true;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
+        state = WALKING;
         break;
     case RIGHT_MOVE:
         isFacingRight = true;
@@ -51,19 +54,15 @@ void Hero::move(Movement playerChoice) {
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(speed, currentVelocityY, 0.0f));
         else
             object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX + speed, currentVelocityY, 0.0f));
-        state = WALKING;
         ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = true;
+        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
+        state = WALKING;
         break;
     case JUMP:
         object->physicsObject->pRigidBody->setLinearVelocity(btVector3(currentVelocityX, jump_height, 0.0f));
-        state = JUMPING;
         ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = true;
         ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = false;
-        break;
-    case CROUCH:
-        state = CROUCHING;
-        ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
-        ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = false;
+        state = JUMPING;
         break;
     case INTERACTION:
         ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = false;
@@ -84,4 +83,15 @@ void Hero::update(bool isOnTheGround) {
     ((AnimatedGraphicsObject*)object->graphicsObject)->isJumping = !isOnTheGround;
     ((AnimatedGraphicsObject*)object->graphicsObject)->isWalking = (lastPos == object->graphicsObject->position) ? false : true;
     lastPos = object->graphicsObject->position;
+}
+
+void Hero::resetPosition() {
+    btTransform initialTransform;
+    btVector3 positionbt = btVector3(this->startPosition.x, this->startPosition.y, positionOnZ);
+    initialTransform.setOrigin(positionbt);
+    initialTransform.setRotation(this->object->physicsObject->btRotation);
+    this->object->physicsObject->pRigidBody->clearForces();
+    this->object->physicsObject->pRigidBody->setWorldTransform(initialTransform);
+    this->object->physicsObject->pMotionState->setWorldTransform(initialTransform);
+    this->diamondPos = glm::vec2(-100.0f, -100.0f);
 }
