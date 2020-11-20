@@ -62,7 +62,7 @@ void Game::loadObjects() {
     PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f,  5.15f), glm::vec3(0.2f, 0.1f, 0.2f), 0.0f);
     pressurePlate->bind(door2);
     lever->bind(door);
-    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 10.0f), glm::vec3(1.5f, 1.5f, 1.5f), 0.0f);
+    LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 20.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f);
     ChestObject* chest = new ChestObject(glm::vec3(1.0f, 10.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f), -90.0f);
 
     player = hero;
@@ -135,6 +135,7 @@ int Game::init() {
     loadObjects();
     loadFonts();
     createUIElements();
+    camera->TeleportToPosition(player->object->graphicsObject->position);
     return 1;
 }
 
@@ -366,6 +367,7 @@ void Game::draw() {
 }
 
 void Game::update() {
+    static float lastFrame = glfwGetTime();
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
@@ -376,7 +378,7 @@ void Game::update() {
 
     for (LeverObject* lever : levers) {
         if (player->state == ACTION) {
-            //it shoudlnt work like this, but since we dont have our rayCast system, we have to use bullet
+            //it shouldn't work like this, but since we don't have our rayCast system, we have to use bullet
             if (lever->object->physicsObject->btPosition.getX() == player->leverPos.x && lever->object->physicsObject->btPosition.getY() == player->leverPos.y) {
                 lever->pull();
                 player->state = STAYING;
@@ -401,6 +403,9 @@ void Game::update() {
         shaders.find("objectShader")->second->use();
         shaders.find("objectShader")->second->setVec3("lightPosition", light->object->graphicsObject->position);
     }
+
+    if(!Debug)
+        camera->WatchObject(player->object->graphicsObject->position, 0.9, deltaTime);
 
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

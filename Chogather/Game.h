@@ -37,7 +37,6 @@ public:
     GLFWwindow* window = nullptr;
     Hero* player;
     float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
     unsigned int SCR_WIDTH;
     unsigned int SCR_HEIGHT;
     static float lastX;

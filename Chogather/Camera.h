@@ -20,6 +20,9 @@ const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
+const float OFFSET_Z = 12.0f;
+const float OFFSET_Y = 1.0f;
+
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -108,6 +111,32 @@ public:
             Zoom = 1.0f;
         if (Zoom > 45.0f)
             Zoom = 45.0f;
+    }
+
+    void TeleportToPosition(float x, float y, float z) {
+        Position.x = x;
+        Position.y = y;
+        Position.z = z + OFFSET_Z;
+    }
+
+    void TeleportToPosition(glm::vec3 newPosition) {
+        Position = newPosition + glm::vec3(0.0f, 0.0f, OFFSET_Z);
+    }
+
+
+    // change Camera to follow target (player)
+    void WatchObject(glm::vec3 target, float lerpSpeed, float deltaTime) {
+        glm::vec3 desiredPosition = target;
+        desiredPosition.z += OFFSET_Z;
+        desiredPosition.y += OFFSET_Y;
+        if (deltaTime * lerpSpeed >= 1.0f)
+            Position = desiredPosition;
+        else
+            Position = Position + (desiredPosition - Position) * lerpSpeed * deltaTime;
+
+        Front = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+        Right = glm::normalize(glm::cross(Front, WorldUp));
+        Up = glm::normalize(glm::cross(Right, Front));
     }
 
 private:
