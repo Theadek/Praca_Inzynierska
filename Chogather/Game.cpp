@@ -32,7 +32,7 @@ Game::~Game() {
 
 void Game::loadModels() {
 
-    Model level1("Models/Level1/Level1Test.obj", true);
+    Model level1("Models/Level1/Level1.obj", true);
     models.insert({ "level1", level1 });
 
     Model level2("Models/Level2/Level2.obj", true);
@@ -59,7 +59,7 @@ void Game::loadObjects() {
     Hero* player1MultiplayerLevel1 = new Hero(glm::vec2(-5.0f, 13.0f));
     Hero* player2MultiplayerLevel1 = new Hero(glm::vec2(0.0f, 16.0f));
     DoorObject* door = new DoorObject(glm::vec2(-1.7f, 7.0f));
-    DoorObject* door2 = new DoorObject(glm::vec2(-1.2f, 10.0f));
+    DoorObject* door2 = new DoorObject(glm::vec2(-1.2f, 10.5f));
     DoorObject* door3 = new DoorObject(glm::vec2(-1.2f, 10.0f));
     LeverObject* lever = new LeverObject(glm::vec2(-3.5f, 6.0f));
     PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f, 5.15f));
