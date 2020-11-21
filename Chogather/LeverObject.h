@@ -1,6 +1,6 @@
 #pragma once
 #include "DoorObject.h"
-#define positionOnZ -3.0
+#define positionOnZ -1.75
 class LeverObject : protected Object
 {
     static int counter;

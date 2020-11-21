@@ -41,6 +41,5 @@ public:
     bool isOnTheWallLeft(Hero* hero);
     bool isOnTheWallRight(Hero* hero);
     bool isInTheDepth(Hero* hero);
-    bool isInTheEnd(Hero* hero);
 };
 

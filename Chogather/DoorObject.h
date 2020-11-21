@@ -1,6 +1,6 @@
 #pragma once
 #include "Object.h"
-#define positionOnZ 0.0f
+#define positionOnZ 0.5f
 #define framesForAnimation 40
 class DoorObject : protected Object
 {

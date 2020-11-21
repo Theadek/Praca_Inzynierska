@@ -9,7 +9,7 @@ LeverObject::LeverObject(glm::vec2 position) {
         leverModel = new Model("Models/Lever/leverTest.obj");
         closedLeverModel = new Model("Models/Lever/closedLeverTest.obj");
     }
-    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, leverModel);
+    GraphicsObject* graphicsObject = new GraphicsObject(glm::vec3(position, positionOnZ), glm::vec3(0.75f, 0.75f, 0.75f), 0.0f, leverModel);
     PhysicsObject* physicsObject = new PhysicsObject(graphicsObject, 1.0f);
     this->object = new Object(graphicsObject, physicsObject, LEVER);
     this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(0.0f, 0.0f, 0.0f));

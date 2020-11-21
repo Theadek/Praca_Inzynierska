@@ -32,7 +32,7 @@ Game::~Game() {
 
 void Game::loadModels() {
 
-    Model level1("Models/Level1/Level1.obj", true);
+    Model level1("Models/Level1/Level1Test.obj", true);
     models.insert({ "level1", level1 });
 
     Model level2("Models/Level2/Level2.obj", true);
@@ -72,7 +72,7 @@ void Game::loadObjects() {
 
 
     //first singleplayerLevel
-    SingleplayerLevelObject* singleplayerLevel1 = new SingleplayerLevelObject(&models.find("level1")->second, glm::vec2(2.0f, 9.0f), camera, SCR_WIDTH, SCR_HEIGHT);
+    SingleplayerLevelObject* singleplayerLevel1 = new SingleplayerLevelObject(&models.find("level1")->second, glm::vec2(-3.0f,11.0f), camera, SCR_WIDTH, SCR_HEIGHT);
     singleplayerLevel1->doors.push_back(door);
     singleplayerLevel1->levers.push_back(lever);
     singleplayerLevel1->pressurePlates.push_back(pressurePlate);
@@ -448,10 +448,8 @@ void Game::update() {
             camera->WatchObject(player->object->graphicsObject->position, 0.9, deltaTime);
     }
         //ENDCASE
-        if (!multiplayer && actualLevel->isInTheEnd(player)) {
-            float diamondPositionX = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getX();
-            float diamondPositionY = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getY();
-            if (player->diamondPos == glm::vec2(diamondPositionX, diamondPositionY)) {
+        if (!multiplayer) {
+            if (glm::distance(actualLevel->diamond->object->graphicsObject->position, player->object->graphicsObject->position) < 1) {
                 if (menuChoice == (singleplayerLevels.size() - 1)) {
                     actualState = GameState_MENU;
                 }
@@ -463,10 +461,8 @@ void Game::update() {
                 }
             }
         }
-        else if (multiplayer && (actualLevel->isInTheEnd(player) || actualLevel->isInTheEnd(player2))) {
-            float diamondPositionX = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getX();
-            float diamondPositionY = actualLevel->diamond->object->physicsObject->pRigidBody->getWorldTransform().getOrigin().getY();
-            if (player->diamondPos == glm::vec2(diamondPositionX, diamondPositionY) || player2->diamondPos == glm::vec2(diamondPositionX, diamondPositionY)) {
+        else if (multiplayer) {
+            if (glm::distance(actualLevel->diamond->object->graphicsObject->position, player->object->graphicsObject->position) < 1 || (glm::distance(actualLevel->diamond->object->graphicsObject->position, player2->object->graphicsObject->position) < 1)) {
                 if (menuChoice == (multiplayerLevels.size() - 1)) {
                     actualState = GameState_MENU;
                 }

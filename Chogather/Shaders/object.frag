@@ -58,7 +58,7 @@ void main()
     //check specular textures
     vec3 specular = vec3(0.0, 0.0, 0.0);
     if(number_of_texture_specular == 0) {
-        specular = lightSpecular * spec * vec3(1.0, 0.0, 0.0); //TODO add material.specular ???
+        specular = lightSpecular * spec * vec3(0.6, 0.6, 0.6); //TODO add material.specular ???
     }
     else if(number_of_texture_specular == 1) {
         specular = lightSpecular * spec * texture(texture_specular1, TexCoords).rgb;

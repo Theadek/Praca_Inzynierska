@@ -20,13 +20,13 @@ bool LevelObject::isOnTheGround(Hero* hero) {
     float positionZ = hero->object->graphicsObject->position.z;
     float halfOfSizeWithScaleY = hero->object->graphicsObject->model->size.y * hero->object->graphicsObject->scale.y / 2;
     float halfOfSizeWithScaleX = hero->object->graphicsObject->model->size.x * hero->object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
-    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
-    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ));
 
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackCenter);
-    m_pWorld->rayTest(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackLeft);
-    m_pWorld->rayTest(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY - 0.1, positionZ), rayCallbackRight);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
+    m_pWorld->rayTest(btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackLeft);
+    m_pWorld->rayTest(btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY - halfOfSizeWithScaleY, positionZ), rayCallbackRight);
 
     return (rayCallbackCenter.hasHit() || rayCallbackLeft.hasHit() || rayCallbackRight.hasHit());
 }
@@ -38,7 +38,8 @@ bool LevelObject::isBelow(Object* object) {
     float halfOfSizeWithScaleY = object->graphicsObject->model->size.y * object->graphicsObject->scale.y / 2;
     btCollisionWorld::AllHitsRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ));
     m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX, positionY + halfOfSizeWithScaleY, positionZ), rayCallbackCenter);
-    if (rayCallbackCenter.m_collisionObjects.size() == 3) {  // 1 for floor, 1 for itself, 1 for object on the top
+    //cout << rayCallbackCenter.m_collisionObjects.size() << endl;
+    if (rayCallbackCenter.m_collisionObjects.size() == 1) {  // 1 for floor, 1 for itself, 1 for object on the top
         return true;
     }
     else {
@@ -51,9 +52,14 @@ bool LevelObject::isOnTheWallLeft(Hero* hero) {
     float positionY = hero->object->graphicsObject->position.y;
     float positionZ = hero->object->graphicsObject->position.z;
     float halfOfSizeWithScaleX = hero->object->graphicsObject->model->size.x * hero->object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), rayCallbackLeft);
-    if (rayCallbackLeft.hasHit()) {
+    float halfOfSizeWithScaleZ = hero->object->graphicsObject->model->size.z * hero->object->graphicsObject->scale.z / 2;
+    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ + halfOfSizeWithScaleZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ - halfOfSizeWithScaleZ));
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ + halfOfSizeWithScaleZ), rayCallbackLeft);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), rayCallbackCenter);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ - halfOfSizeWithScaleZ), rayCallbackRight);
+    if (rayCallbackLeft.hasHit() || rayCallbackCenter.hasHit() || rayCallbackRight.hasHit()) {
         return true;
     }
     return false;
@@ -65,9 +71,14 @@ bool LevelObject::isOnTheWallRight(Hero* hero) {
     float positionY = hero->object->graphicsObject->position.y;
     float positionZ = hero->object->graphicsObject->position.z;
     float halfOfSizeWithScaleX = hero->object->graphicsObject->model->size.x * hero->object->graphicsObject->scale.x / 2;
-    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), rayCallbackRight);
-    if (rayCallbackRight.hasHit()) {
+    float halfOfSizeWithScaleZ = hero->object->graphicsObject->model->size.z * hero->object->graphicsObject->scale.z / 2;
+    btCollisionWorld::ClosestRayResultCallback rayCallbackLeft(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ + halfOfSizeWithScaleZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackCenter(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ));
+    btCollisionWorld::ClosestRayResultCallback rayCallbackRight(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ - halfOfSizeWithScaleZ));
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ + halfOfSizeWithScaleZ), rayCallbackLeft);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), rayCallbackCenter);
+    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ - halfOfSizeWithScaleZ), rayCallbackRight);
+    if (rayCallbackLeft.hasHit() || rayCallbackCenter.hasHit() || rayCallbackRight.hasHit()) {
         return true;
     }
     return false;
@@ -88,30 +99,6 @@ bool LevelObject::isInTheDepth(Hero* hero) {
     }
     else {
         //cout << "Nothing is there!" << endl;
-        return false;
-    }
-}
-
-bool LevelObject::isInTheEnd(Hero* hero) {
-    float positionX = hero->object->graphicsObject->position.x;
-    float positionY = hero->object->graphicsObject->position.y;
-    float positionZ = hero->object->graphicsObject->position.z;
-    float halfOfSizeWithScaleX = hero->object->graphicsObject->model->size.x * hero->object->graphicsObject->scale.x / 2;
-    btCollisionWorld::AllHitsRayResultCallback rayCallbackLeft(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX - halfOfSizeWithScaleX, positionY, positionZ), rayCallbackLeft);
-    btCollisionWorld::AllHitsRayResultCallback rayCallbackRight(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ));
-    m_pWorld->rayTest(btVector3(positionX, positionY, positionZ), btVector3(positionX + halfOfSizeWithScaleX, positionY, positionZ), rayCallbackRight);
-    if (rayCallbackLeft.hasHit()) {
-        btTransform trans = rayCallbackLeft.m_collisionObject->getWorldTransform();
-        hero->diamondPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
-        return true;
-    }
-    else if (rayCallbackRight.hasHit()) {
-        btTransform trans = rayCallbackRight.m_collisionObject->getWorldTransform();
-        hero->diamondPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
-        return true;
-    }
-    else {
         return false;
     }
 }
