@@ -14,6 +14,7 @@ public:
     bool isPressed;
     vector<DoorObject*> bindedObjects;
     Object* object;
+    PressurePlateObject();
     PressurePlateObject(glm::vec2 position);
     void bind(DoorObject* door);
     void update();

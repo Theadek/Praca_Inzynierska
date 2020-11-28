@@ -3,6 +3,10 @@
 int PressurePlateObject::counter = 0;
 Model* PressurePlateObject::pressurePlateModel = NULL;
 
+PressurePlateObject::PressurePlateObject() {
+
+}
+
 PressurePlateObject::PressurePlateObject(glm::vec2 position) {
     if (!pressurePlateModel) {
         pressurePlateModel = new Model("Models/PressurePlate/PressurePlate.obj");
@@ -22,6 +26,7 @@ PressurePlateObject::PressurePlateObject(glm::vec2 position) {
 
 void PressurePlateObject::bind(DoorObject* door) {
     bindedObjects.push_back(door);
+    door->controllerID = ID;
 }
 
 

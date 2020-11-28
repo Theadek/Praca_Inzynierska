@@ -102,3 +102,60 @@ bool LevelObject::isInTheDepth(Hero* hero) {
         return false;
     }
 }
+
+void LevelObject::resetLevel() {
+    for (ChestObject* chest : chests) {
+        m_pWorld->removeRigidBody(chest->object->physicsObject->pRigidBody);
+        delete chest;
+    }
+    for (DoorObject* door : doors) {
+        m_pWorld->removeRigidBody(door->object->physicsObject->pRigidBody);
+        delete door;
+    }
+    for (LeverObject* lever : levers) {
+        m_pWorld->removeRigidBody(lever->object->physicsObject->pRigidBody);
+        delete lever;
+    }
+    for (PressurePlateObject* pressurePlate : pressurePlates) {
+        m_pWorld->removeRigidBody(pressurePlate->object->physicsObject->pRigidBody);
+        delete pressurePlate;
+    }
+    chests.clear();
+    doors.clear();
+    levers.clear();
+    pressurePlates.clear();
+    for (glm::vec2 chestPosition : initialChests) {
+        ChestObject* chestObject = new ChestObject(chestPosition);
+        m_pWorld->addRigidBody(chestObject->object->physicsObject->pRigidBody);
+        chests.push_back(chestObject);
+    }
+    for (int i = 0; i < initialDoors.size(); i++) {
+        DoorObject* doorObject = new DoorObject(initialDoors[i].first);
+        doorObject->controllerID = initialDoors[i].second;
+        m_pWorld->addRigidBody(doorObject->object->physicsObject->pRigidBody);
+        doors.push_back(doorObject);
+    }
+    for (int i = 0; i < initialLevers.size(); i++) {
+        LeverObject* leverObject = new LeverObject(initialLevers[i].first);
+        leverObject->ID = initialLevers[i].second;
+        for (DoorObject* door : doors) {
+            if (door->controllerID == leverObject->ID) {
+                leverObject->bind(door);
+            }
+        }
+        m_pWorld->addRigidBody(leverObject->object->physicsObject->pRigidBody);
+        levers.push_back(leverObject);
+    }
+    for (int i = 0; i < initialPressurePlates.size(); i++) {
+        PressurePlateObject* pressurePlateObject = new PressurePlateObject(initialPressurePlates[i].first);
+        pressurePlateObject->ID = initialPressurePlates[i].second;
+        for (DoorObject* door : doors) {
+            if (door->controllerID == pressurePlateObject->ID) {
+                pressurePlateObject->bind(door);
+            }
+        }
+        m_pWorld->addRigidBody(pressurePlateObject->object->physicsObject->pRigidBody);
+        pressurePlates.push_back(pressurePlateObject);
+    }
+
+}

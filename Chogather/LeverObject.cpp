@@ -22,6 +22,7 @@ LeverObject::LeverObject(glm::vec2 position) {
 
 void LeverObject::bind(DoorObject* door) {
     bindedObjects.push_back(door);
+    door->controllerID = ID;
 }
 
 void LeverObject::pull() {

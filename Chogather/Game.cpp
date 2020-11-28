@@ -311,12 +311,14 @@ void Game::processInput()
                 player2 = multiplayerLevels[menuChoice]->hero2;
                 player2->resetPosition();
                 actualLevel = multiplayerLevels[menuChoice];
+                actualLevel->resetLevel();
                 camera->TeleportToPosition(player->object->graphicsObject->position);
             }
             else {
                 player = singleplayerLevels[menuChoice]->hero;
                 player->resetPosition();
                 actualLevel = singleplayerLevels[menuChoice];
+                actualLevel->resetLevel();
                 camera->TeleportToPosition(player->object->graphicsObject->position);
             }
         }

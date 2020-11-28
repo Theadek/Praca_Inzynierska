@@ -16,6 +16,8 @@
 class LevelObject
 {
 public:
+    std::vector <glm::vec2> initialChests;
+    std::vector <pair<glm::vec3, int>> initialDoors, initialLevers, initialPressurePlates;
     std::vector <LeverObject*> levers;
     std::vector <DoorObject*> doors;
     std::vector <PressurePlateObject*> pressurePlates;
@@ -41,5 +43,6 @@ public:
     bool isOnTheWallLeft(Hero* hero);
     bool isOnTheWallRight(Hero* hero);
     bool isInTheDepth(Hero* hero);
+    void resetLevel();
 };
 

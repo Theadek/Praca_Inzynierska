@@ -13,21 +13,22 @@ void MultiplayerLevelObject::initPhysics() {
     m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
     m_pWorld->setGravity(btVector3(0.0, GRAVITY, 0.0));
     debugDrawerObject = new debugDrawer(camera, SCR_WIDTH, SCR_HEIGHT);
+    m_pWorld->setDebugDrawer(debugDrawerObject);
 }
 
 void MultiplayerLevelObject::loadLevel() {
     initPhysics();
     for (DoorObject* door : doors) {
-        m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
+        initialDoors.push_back(std::make_pair(door->object->graphicsObject->position, door->controllerID));
     }
     for (LeverObject* lever : levers) {
-        m_pWorld->addRigidBody(lever->object->physicsObject->pRigidBody);
+        initialLevers.push_back(std::make_pair(lever->object->graphicsObject->position, lever->ID));
     }
     for (PressurePlateObject* pressurePlate : pressurePlates) {
-        m_pWorld->addRigidBody(pressurePlate->object->physicsObject->pRigidBody);
+        initialPressurePlates.push_back(std::make_pair(pressurePlate->object->graphicsObject->position, pressurePlate->ID));
     }
     for (ChestObject* chest : chests) {
-        m_pWorld->addRigidBody(chest->object->physicsObject->pRigidBody);
+        initialChests.push_back(chest->object->graphicsObject->position);
     }
     for (LightObject* light : lights) {
         m_pWorld->addRigidBody(light->object->physicsObject->pRigidBody);
@@ -36,12 +37,6 @@ void MultiplayerLevelObject::loadLevel() {
     m_pWorld->addRigidBody(object->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(hero->object->physicsObject->pRigidBody);
     m_pWorld->addRigidBody(hero2->object->physicsObject->pRigidBody);
-    if (debugDrawerObject != NULL) {
-        m_pWorld->setDebugDrawer(debugDrawerObject);
-    }
-    else {
-        cout << "debugDrawerObject is not set!" << endl;
-    }
 }
 
 void MultiplayerLevelObject::draw(Shader* shader) {
