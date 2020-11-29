@@ -51,6 +51,8 @@ void Game::loadShaders() {
     shaders.insert({ "lightShader", lightShader });
     Shader* objectShader = new Shader("Shaders/object.vert", "Shaders/object.frag");
     shaders.insert({ "objectShader", objectShader });
+    Shader* objectShader2 = new Shader("Shaders/object2.vert", "Shaders/object2.frag");
+    shaders.insert({ "objectShader2", objectShader2 });
     Shader* fontShader = new Shader("Shaders/Glyph.vert", "Shaders/Glyph.frag");
     shaders.insert({ "fontShader", fontShader });
 }
@@ -102,7 +104,7 @@ void Game::loadObjects() {
     singleplayerLevels.push_back(singleplayerLevel2);
 
     //first multiplayerLevel
-    MultiplayerLevelObject* multiplayerLevel1 = new MultiplayerLevelObject(&models.find("level3")->second, glm::vec2(6.0f, 10.0f), camera, SCR_WIDTH, SCR_HEIGHT);
+    MultiplayerLevelObject* multiplayerLevel1 = new MultiplayerLevelObject(&models.find("level3")->second, glm::vec2(6.0f, 10.0f), camera, SCR_WIDTH, SCR_HEIGHT, shaders.find("objectShader2")->second);
     multiplayerLevel1->doors.push_back(door3);
     multiplayerLevel1->doors.push_back(door4);
     multiplayerLevel1->doors.push_back(door5);
@@ -457,6 +459,8 @@ void Game::update() {
         for (LightObject* light : actualLevel->lights) {
             shaders.find("objectShader")->second->use();
             shaders.find("objectShader")->second->setVec3("lightPosition", light->object->graphicsObject->position);
+            shaders.find("objectShader2")->second->use();
+            shaders.find("objectShader2")->second->setVec3("lightPosition", light->object->graphicsObject->position);
         }
 
     if (!Debug) {
@@ -502,6 +506,11 @@ void Game::update() {
     shaders.find("objectShader")->second->setMat4("view", view);
     shaders.find("objectShader")->second->setMat4("projection", projection);
     shaders.find("objectShader")->second->setVec3("viewPos", camera->Position);
+
+    shaders.find("objectShader2")->second->use();
+    shaders.find("objectShader2")->second->setMat4("view", view);
+    shaders.find("objectShader2")->second->setMat4("projection", projection);
+    shaders.find("objectShader2")->second->setVec3("viewPos", camera->Position);
 
     shaders.find("lightShader")->second->use();
     shaders.find("lightShader")->second->setMat4("view", view);

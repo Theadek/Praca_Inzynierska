@@ -205,5 +205,11 @@
     <None Include="Shaders\Glyph.vert">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\object2.frag">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\object2.vert">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

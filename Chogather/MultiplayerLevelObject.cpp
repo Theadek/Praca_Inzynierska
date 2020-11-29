@@ -1,9 +1,8 @@
 #include "MultiplayerLevelObject.h"
 
-MultiplayerLevelObject::MultiplayerLevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) : LevelObject(model, diamondPosition, camera, SCR_WIDTH, SCR_HEIGHT) {
-
+MultiplayerLevelObject::MultiplayerLevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT, Shader* alternative) : LevelObject(model, diamondPosition, camera, SCR_WIDTH, SCR_HEIGHT) {
+    this->alternative = alternative;
 }
-
 
 void MultiplayerLevelObject::initPhysics() {
     m_pBroadphase = new btDbvtBroadphase();
@@ -43,7 +42,7 @@ void MultiplayerLevelObject::draw(Shader* shader) {
     diamond->object->graphicsObject->renderModel(shader);
     object->graphicsObject->renderModel(shader);
     hero->object->graphicsObject->renderModel(shader);
-    hero2->object->graphicsObject->renderModel(shader);
+    hero2->object->graphicsObject->renderModel(alternative);
     for (LeverObject* lever : levers) {
         lever->object->graphicsObject->renderModel(shader);
     }
