@@ -13,5 +13,6 @@ public:
     TAG tag;
     Object();
     Object(GraphicsObject* graphicsObject, PhysicsObject* physicsObject, TAG tag);
+    void move(int direction);
 };
 

@@ -12,6 +12,8 @@ LevelObject::LevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera
     this->camera = camera;
     this->SCR_WIDTH = SCR_WIDTH;
     this->SCR_HEIGHT = SCR_HEIGHT;
+    newObjects[0] = nullptr;
+    newObjects[1] = nullptr;
 }
 
 bool LevelObject::isOnTheGround(Hero* hero) {
@@ -94,7 +96,7 @@ bool LevelObject::isInTheDepth(Hero* hero) {
         //We have to store object position bcs we dont have our rayCast system, later we will check  if it is lever
         btTransform trans = rayCallbackCenter.m_collisionObject->getWorldTransform();
         hero->leverPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
-        //cout << "Smth is in the depth" << endl;
+        cout << "Smth is in the depth: " << trans.getOrigin().getX() << " " << trans.getOrigin().getY() << endl;
         return true;
     }
     else {
@@ -158,4 +160,75 @@ void LevelObject::resetLevel() {
         pressurePlates.push_back(pressurePlateObject);
     }
 
+}
+
+void LevelObject::addTemporaryObject(int objectType) {
+    glm::vec3 lookAtVec = camera->GetViewMatrix() * glm::vec4(camera->Position, 0);
+    switch (objectType) {
+    case 1: {
+        ChestObject* chest = new ChestObject(glm::vec2(lookAtVec.x, lookAtVec.y), 0.0f);
+        chest->object->graphicsObject->debug = true;
+        newObjects[0] = chest->object;
+        chests.push_back(chest);
+        m_pWorld->addRigidBody(chest->object->physicsObject->pRigidBody);
+        break;
+    }
+    case 2: {
+        LeverObject* lever = new LeverObject(glm::vec2(lookAtVec.x - 1.0f, lookAtVec.y));
+        lever->object->graphicsObject->debug = true;
+        newObjects[0] = lever->object;
+        DoorObject* door = new DoorObject(glm::vec2(lookAtVec.x, lookAtVec.y));
+        door->object->graphicsObject->debug = true;
+        newObjects[1] = door->object;
+        lever->bind(door);
+        levers.push_back(lever);
+        doors.push_back(door);
+        m_pWorld->addRigidBody(lever->object->physicsObject->pRigidBody);
+        m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
+        break;
+    }
+    case 3: {
+        PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(lookAtVec.x - 1.0f, lookAtVec.y));
+        pressurePlate->object->graphicsObject->debug = true;
+        newObjects[0] = pressurePlate->object;
+        DoorObject* door = new DoorObject(glm::vec2(lookAtVec.x, lookAtVec.y));
+        door->object->graphicsObject->debug = true;
+        newObjects[1] = door->object;
+        pressurePlate->bind(door);
+        pressurePlates.push_back(pressurePlate);
+        doors.push_back(door);
+        m_pWorld->addRigidBody(pressurePlate->object->physicsObject->pRigidBody);
+        m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void LevelObject::addObject() {
+    if (newObjects[0]) {
+        newObjects[0]->graphicsObject->debug = false;
+
+        if (newObjects[0]->tag == CHEST) {
+            m_pWorld->removeRigidBody(newObjects[0]->physicsObject->pRigidBody);
+            btVector3 inertia;
+            newObjects[0]->physicsObject->pRigidBody->getCollisionShape()->calculateLocalInertia(1.0f, inertia);
+            newObjects[0]->physicsObject->pRigidBody->setMassProps(1.0f, inertia);
+            m_pWorld->addRigidBody(newObjects[0]->physicsObject->pRigidBody);
+            initialChests.push_back(chests.back()->object->graphicsObject->position);
+        }
+        if (newObjects[0]->tag == LEVER) {
+            initialLevers.push_back(std::make_pair(levers.back()->object->graphicsObject->position, levers.back()->ID));
+        }
+        if (newObjects[0]->tag == DOOR) {
+            initialDoors.push_back(std::make_pair(doors.back()->object->graphicsObject->position, doors.back()->controllerID));
+        }
+        if (newObjects[0]->tag == PRESSURE_PLATE) {
+            initialPressurePlates.push_back(std::make_pair(pressurePlates.back()->object->graphicsObject->position, pressurePlates.back()->ID));
+        }
+        newObjects[0] = nullptr;
+        newObjects[0] = newObjects[1];
+        newObjects[1] = nullptr;
+    }
 }

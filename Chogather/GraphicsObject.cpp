@@ -14,6 +14,7 @@ void GraphicsObject::renderModel(Shader* shader) {
     modelMatrix = glm::rotate(modelMatrix, glm::radians(rotate), glm::vec3(0.0f, 1.0f, 0.0f));
     modelMatrix = glm::scale(modelMatrix, scale);
     shader->setMat4("model", modelMatrix);
+    shader->setBool("debug", debug);
     for (int i = 0; i < model->meshes.size(); i++) {
         model->meshes[i].draw(shader);
     }

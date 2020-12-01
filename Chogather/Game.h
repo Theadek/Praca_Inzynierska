@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/glad.h>
+#include <Windows.h>
+#include <gl/GLU.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
@@ -33,6 +35,9 @@ enum Key {
     Key_DOWN,
     Key_ENTER,
     Key_ESCAPE,
+    Key_1,
+    Key_2,
+    Key_3,
     Key_NOTHING
 };
 

@@ -24,6 +24,7 @@ public:
     glm::vec3 scale;
     GLfloat rotate;
     Model* model;
+    bool debug = false;
     GraphicsObject(glm::vec3 position, glm::vec3 scale, GLfloat rotate, Model* model);
     virtual void renderModel(Shader* shader);
 };

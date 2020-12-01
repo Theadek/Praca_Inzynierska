@@ -11,11 +11,13 @@
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
+#include <typeinfo>
 #define GRAVITY -20.0
 #define DEPTH_TEST_RANGE -5.0f
 class LevelObject
 {
 public:
+    Object* newObjects[2];
     std::vector <glm::vec2> initialChests;
     std::vector <pair<glm::vec3, int>> initialDoors, initialLevers, initialPressurePlates;
     std::vector <LeverObject*> levers;
@@ -43,6 +45,8 @@ public:
     bool isOnTheWallLeft(Hero* hero);
     bool isOnTheWallRight(Hero* hero);
     bool isInTheDepth(Hero* hero);
+    void addTemporaryObject(int objectType);
+    void addObject();
     void resetLevel();
 };
 

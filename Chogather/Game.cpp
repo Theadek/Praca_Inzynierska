@@ -1,5 +1,4 @@
 #include "Game.h"
-
 Camera* Game::camera;
 Background* Game::background;
 float Game::lastX;
@@ -216,6 +215,11 @@ void Game::toggleDebug() {
             debugEnabled = !debugEnabled;
         }
     }
+    if (Debug) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+    else
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 void Game::processInput()
@@ -231,7 +235,24 @@ void Game::processInput()
                 camera->ProcessKeyboard(LEFT, deltaTime);
             if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
                 camera->ProcessKeyboard(RIGHT, deltaTime);
-        }
+            if (actualKey == Key_1)
+                actualLevel->addTemporaryObject(1); //CHEST
+            if (actualKey == Key_2)
+                actualLevel->addTemporaryObject(2); //LEVER AND DOORS
+            if (actualKey == Key_3)
+                actualLevel->addTemporaryObject(3); //LEVER AND DOORS
+            if (actualKey == Key_UP && actualLevel->newObjects[0])
+                actualLevel->newObjects[0]->move(1);
+            if (actualKey == Key_DOWN && actualLevel->newObjects[0])
+                actualLevel->newObjects[0]->move(2);
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && actualLevel->newObjects[0])
+                actualLevel->newObjects[0]->move(3);
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && actualLevel->newObjects[0])
+                actualLevel->newObjects[0]->move(4);
+            if (actualKey == Key_ENTER)
+                actualLevel->addObject();
+            }
+    else {
         //first player move
         if (actualKey == Key_UP) {
             if (actualLevel->isOnTheGround(player)) {
@@ -288,6 +309,7 @@ void Game::processInput()
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
                 player2->move(LEFT_MOVE);
         }
+    }
         //exit
         if (actualKey == Key_ESCAPE)
             actualState = GameState_MENU;
@@ -369,6 +391,15 @@ void Game::key_callback(GLFWwindow* window, int key, int scancode, int action, i
     if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
         actualKey = Key_Q;
     }
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+        actualKey = Key_1;
+    }
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+        actualKey = Key_2;
+    }
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+        actualKey = Key_3;
+    }
 }
 
 void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -395,6 +426,19 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
         camera->ProcessMouseMovement(xoffset, yoffset);
     }
 }
+
+//void Game::mouse_click(GLFWwindow* window, int button, int action, int mods) {
+//    if (Debug) {
+//        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+//        {
+//            glm::vec3 lookAtVec = camera->GetViewMatrix() * glm::vec4(camera->Position,0);
+//            ChestObject* chest = new ChestObject(glm::vec2(lookAtVec.x, lookAtVec.y), 0.0f);
+//            chest->object->graphicsObject->debug = true;
+//            actualLevel->addTemporaryObject(chest);
+//            actualLevel->newObject = chest->object;
+//        }
+//    }
+//}
 
 void Game::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

@@ -7,7 +7,7 @@ class ChestObject : protected Object
     static Model* chestModel;
 public:
     Object* object;
-    ChestObject(glm::vec2 position);
+    ChestObject(glm::vec2 position, float mass = 1.0f);
     void update();
 };
 

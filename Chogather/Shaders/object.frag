@@ -4,6 +4,8 @@ in vec3 Normals;
 in vec2 TexCoords;
 out vec4 FragColor;
 
+uniform bool debug;
+
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
@@ -63,8 +65,11 @@ void main()
     else if(number_of_texture_specular == 1) {
         specular = lightSpecular * spec * texture(texture_specular1, TexCoords).rgb;
     }
-
     vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
+    if(debug) {
+        FragColor = vec4(result.r * 0.7f, result.g * 0.5f, result.b * 1.0f, 1.0);
+    } else {
+        FragColor = vec4(result, 1.0);
+    }
 
 }
