@@ -12,6 +12,7 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 #include <typeinfo>
+#include <fstream>
 #define GRAVITY -20.0
 #define DEPTH_TEST_RANGE -5.0f
 class LevelObject
@@ -36,10 +37,13 @@ public:
     btDynamicsWorld* m_pWorld;
     btIDebugDraw* debugDrawerObject;
     LevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
+    LevelObject(Model* model, string path, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT);
     virtual void initPhysics() = 0;
     virtual void loadLevel() = 0;
     virtual void draw(Shader* shader) = 0;
     virtual void update(float deltaTime) = 0;
+    virtual void saveLevel() = 0;
+    virtual void loadLevelFromFile(string path) = 0;
     bool isOnTheGround(Hero* hero);
     bool isBelow(Object* object);
     bool isOnTheWallLeft(Hero* hero);
@@ -48,5 +52,6 @@ public:
     void addTemporaryObject(int objectType);
     void addObject();
     void resetLevel();
+
 };
 

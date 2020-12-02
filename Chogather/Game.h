@@ -32,6 +32,7 @@ enum Key {
     Key_UP,
     Key_Q,
     Key_W,
+    Key_S,
     Key_DOWN,
     Key_ENTER,
     Key_ESCAPE,

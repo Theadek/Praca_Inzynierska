@@ -16,6 +16,21 @@ LevelObject::LevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera
     newObjects[1] = nullptr;
 }
 
+LevelObject::LevelObject(Model* model, string path, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) {
+    GraphicsObject* levelGraphicsObject = new GraphicsObject(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, model);
+    PhysicsObject* levelPhysicsObject = new PhysicsObject(levelGraphicsObject, 0.0f);
+    Object* level = new Object(levelGraphicsObject, levelPhysicsObject, LEVEL);
+    this->object = level;
+    this->object->physicsObject->pRigidBody->setLinearFactor(btVector3(1.0f, 1.0f, 0.0f));
+    this->object->physicsObject->pRigidBody->setFriction(1.0f);
+    this->object->physicsObject->pRigidBody->setRestitution(0.0f);
+    this->camera = camera;
+    this->SCR_WIDTH = SCR_WIDTH;
+    this->SCR_HEIGHT = SCR_HEIGHT;
+    newObjects[0] = nullptr;
+    newObjects[1] = nullptr;
+}
+
 bool LevelObject::isOnTheGround(Hero* hero) {
     float positionX = hero->object->graphicsObject->position.x;
     float positionY = hero->object->graphicsObject->position.y;
@@ -96,7 +111,7 @@ bool LevelObject::isInTheDepth(Hero* hero) {
         //We have to store object position bcs we dont have our rayCast system, later we will check  if it is lever
         btTransform trans = rayCallbackCenter.m_collisionObject->getWorldTransform();
         hero->leverPos = glm::vec2(trans.getOrigin().getX(), trans.getOrigin().getY());
-        cout << "Smth is in the depth: " << trans.getOrigin().getX() << " " << trans.getOrigin().getY() << endl;
+        //cout << "Smth is in the depth: " << trans.getOrigin().getX() << " " << trans.getOrigin().getY() << endl;
         return true;
     }
     else {

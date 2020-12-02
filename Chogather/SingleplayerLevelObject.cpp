@@ -1,6 +1,14 @@
 #include "SingleplayerLevelObject.h"
+int SingleplayerLevelObject::counter = 1;
 SingleplayerLevelObject::SingleplayerLevelObject(Model* model, glm::vec2 diamondPosition, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) :LevelObject(model, diamondPosition, camera, SCR_WIDTH, SCR_HEIGHT) {
+    this->ID = counter;
+    counter++;
+}
 
+SingleplayerLevelObject::SingleplayerLevelObject(Model* model, string path, Camera* camera, unsigned int SCR_WIDTH, unsigned int SCR_HEIGHT) : LevelObject(model, path, camera, SCR_WIDTH, SCR_HEIGHT) {
+    this->ID = counter;
+    counter++;
+    loadLevelFromFile(path);
 }
 
 void SingleplayerLevelObject::initPhysics() {
@@ -88,4 +96,60 @@ void SingleplayerLevelObject::update(float deltaTime) {
     }
 
     diamond->update(deltaTime);
+}
+
+void SingleplayerLevelObject::saveLevel() {
+    std::ofstream output_file("./Levels/SingleplayerLevels/Level" + to_string(ID) + ".txt");
+    output_file << "Diamond " << diamond->object->graphicsObject->position.x << " " << diamond->object->graphicsObject->position.y << " 0 0 \n";
+    for (glm::vec2 chest : initialChests) {
+        output_file << "Chest " << chest.x << " " << chest.y << " 0 0 \n";
+    }
+    for (std::pair<glm::vec3, int> door : initialDoors) {
+        output_file << "Door " << door.first.x << " " << door.first.y << " " << door.first.z << " " << door.second << "\n";
+    }
+    for (std::pair<glm::vec3, int> lever : initialLevers) {
+        output_file << "Lever " << lever.first.x << " " << lever.first.y << " " << lever.first.z << " " << lever.second << "\n";
+    }
+    for (std::pair<glm::vec3, int> pressurePlate : initialPressurePlates) {
+        output_file << "PressurePlate " << pressurePlate.first.x << " " << pressurePlate.first.y << " " << pressurePlate.first.z << " " << pressurePlate.second << "\n";
+    }
+    for (LightObject* light : lights) {
+        output_file << "Light " << light->object->graphicsObject->position.x << " " << light->object->graphicsObject->position.y << " " << light->object->graphicsObject->position.z << " 0\n";
+    }
+}
+
+void SingleplayerLevelObject::loadLevelFromFile(string path) {
+    std::ifstream input_file(path);
+    std::string line;
+    while (std::getline(input_file, line)) {
+        std::istringstream iss(line);
+        string name;
+        float x, y, z, w;
+        if (!(iss >> name >> x >> y >> z >> w)) {
+            break;
+        }
+        else {
+            if (name == "Diamond") {
+                this->diamond = new DiamondObject(glm::vec2(x, y));
+            }
+            else if (name == "Chest") {
+                initialChests.push_back(glm::vec2(x, y));
+            }
+            else if (name == "Door") {
+                initialDoors.push_back(std::make_pair(glm::vec3(x, y, z), w));
+            }
+            else if (name == "Lever") {
+                initialLevers.push_back(std::make_pair(glm::vec3(x, y, z), w));
+            }
+            else if (name == "PressurePlate") {
+                initialPressurePlates.push_back(std::make_pair(glm::vec3(x, y, z), w));
+            }
+            else if (name == "Light") {
+                lights.push_back(new LightObject(glm::vec3(x, y, z)));
+            }
+        }
+    }
+    initPhysics();
+    m_pWorld->addRigidBody(object->physicsObject->pRigidBody);
+    resetLevel();
 }

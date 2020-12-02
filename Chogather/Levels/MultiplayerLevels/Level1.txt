@@ -1,0 +1,10 @@
+Diamond 6 10 0 0 
+Door 0 10.5 0.5 3
+Door 6 7 0.5 2
+Door 4 10.5 0.5 1
+Door -1.67114 6.84457 0.5 9
+Lever 2 10 -1.75 2
+Lever -5.5 -1.5 -1.75 3
+Lever -2.87114 5.94457 -1.75 9
+PressurePlate 7 5.15 0 1
+Light 4 12 50 0
