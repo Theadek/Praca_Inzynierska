@@ -27,8 +27,6 @@ LevelObject::LevelObject(Model* model, string path, Camera* camera, unsigned int
     this->camera = camera;
     this->SCR_WIDTH = SCR_WIDTH;
     this->SCR_HEIGHT = SCR_HEIGHT;
-    newObjects[0] = nullptr;
-    newObjects[1] = nullptr;
 }
 
 bool LevelObject::isOnTheGround(Hero* hero) {
@@ -177,39 +175,39 @@ void LevelObject::resetLevel() {
 
 }
 
-void LevelObject::addTemporaryObject(int objectType) {
+void LevelObject::addTemporaryObject(TAG objectType) {
     glm::vec3 lookAtVec = camera->GetViewMatrix() * glm::vec4(camera->Position, 0);
     switch (objectType) {
-    case 1: {
+    case CHEST: {
         ChestObject* chest = new ChestObject(glm::vec2(lookAtVec.x, lookAtVec.y), 0.0f);
         chest->object->graphicsObject->debug = true;
-        newObjects[0] = chest->object;
+        newObjects.push_back(chest->object);
         chests.push_back(chest);
         m_pWorld->addRigidBody(chest->object->physicsObject->pRigidBody);
         break;
     }
-    case 2: {
+    case LEVER: {
         LeverObject* lever = new LeverObject(glm::vec2(lookAtVec.x - 1.0f, lookAtVec.y));
         lever->object->graphicsObject->debug = true;
-        newObjects[0] = lever->object;
         DoorObject* door = new DoorObject(glm::vec2(lookAtVec.x, lookAtVec.y));
         door->object->graphicsObject->debug = true;
-        newObjects[1] = door->object;
         lever->bind(door);
+        newObjects.push_back(door->object);
+        newObjects.push_back(lever->object);
         levers.push_back(lever);
         doors.push_back(door);
         m_pWorld->addRigidBody(lever->object->physicsObject->pRigidBody);
         m_pWorld->addRigidBody(door->object->physicsObject->pRigidBody);
         break;
     }
-    case 3: {
+    case PRESSURE_PLATE: {
         PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(lookAtVec.x - 1.0f, lookAtVec.y));
         pressurePlate->object->graphicsObject->debug = true;
-        newObjects[0] = pressurePlate->object;
         DoorObject* door = new DoorObject(glm::vec2(lookAtVec.x, lookAtVec.y));
         door->object->graphicsObject->debug = true;
-        newObjects[1] = door->object;
         pressurePlate->bind(door);
+        newObjects.push_back(door->object);
+        newObjects.push_back(pressurePlate->object);
         pressurePlates.push_back(pressurePlate);
         doors.push_back(door);
         m_pWorld->addRigidBody(pressurePlate->object->physicsObject->pRigidBody);
@@ -222,28 +220,27 @@ void LevelObject::addTemporaryObject(int objectType) {
 }
 
 void LevelObject::addObject() {
-    if (newObjects[0]) {
-        newObjects[0]->graphicsObject->debug = false;
+    if (newObjects.back()->graphicsObject->debug) {
+        newObjects.back()->graphicsObject->debug = false;
 
-        if (newObjects[0]->tag == CHEST) {
-            m_pWorld->removeRigidBody(newObjects[0]->physicsObject->pRigidBody);
+        if (newObjects.back()->tag == CHEST) {
+            m_pWorld->removeRigidBody(newObjects.back()->physicsObject->pRigidBody);
             btVector3 inertia;
-            newObjects[0]->physicsObject->pRigidBody->getCollisionShape()->calculateLocalInertia(1.0f, inertia);
-            newObjects[0]->physicsObject->pRigidBody->setMassProps(1.0f, inertia);
-            m_pWorld->addRigidBody(newObjects[0]->physicsObject->pRigidBody);
+            newObjects.back()->physicsObject->pRigidBody->getCollisionShape()->calculateLocalInertia(1.0f, inertia);
+            newObjects.back()->physicsObject->pRigidBody->setMassProps(1.0f, inertia);
+            m_pWorld->addRigidBody(newObjects.back()->physicsObject->pRigidBody);
             initialChests.push_back(chests.back()->object->graphicsObject->position);
         }
-        if (newObjects[0]->tag == LEVER) {
+        if (newObjects.back()->tag == LEVER) {
             initialLevers.push_back(std::make_pair(levers.back()->object->graphicsObject->position, levers.back()->ID));
+            std::swap(newObjects[newObjects.size()-2], newObjects[newObjects.size()-1]);
         }
-        if (newObjects[0]->tag == DOOR) {
+        if (newObjects.back()->tag == DOOR) {
             initialDoors.push_back(std::make_pair(doors.back()->object->graphicsObject->position, doors.back()->controllerID));
         }
-        if (newObjects[0]->tag == PRESSURE_PLATE) {
+        if (newObjects.back()->tag == PRESSURE_PLATE) {
             initialPressurePlates.push_back(std::make_pair(pressurePlates.back()->object->graphicsObject->position, pressurePlates.back()->ID));
+            std::swap(newObjects[newObjects.size()-2], newObjects[newObjects.size() - 1]);
         }
-        newObjects[0] = nullptr;
-        newObjects[0] = newObjects[1];
-        newObjects[1] = nullptr;
     }
 }

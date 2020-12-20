@@ -18,7 +18,7 @@
 class LevelObject
 {
 public:
-    Object* newObjects[2];
+    std::vector <Object*> newObjects;
     std::vector <glm::vec2> initialChests;
     std::vector <pair<glm::vec3, int>> initialDoors, initialLevers, initialPressurePlates;
     std::vector <LeverObject*> levers;
@@ -49,7 +49,7 @@ public:
     bool isOnTheWallLeft(Hero* hero);
     bool isOnTheWallRight(Hero* hero);
     bool isInTheDepth(Hero* hero);
-    void addTemporaryObject(int objectType);
+    void addTemporaryObject(TAG objectType);
     void addObject();
     void resetLevel();
 

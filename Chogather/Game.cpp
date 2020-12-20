@@ -59,7 +59,7 @@ void Game::loadShaders() {
 void Game::loadObjects() {
 
     Hero* playerSingleplayerLevel1 = new Hero(glm::vec2(-5.0f, 7.0f));
-    Hero* playerSingleplayerLevel2 = new Hero(glm::vec2(-5.0f, 7.0f));
+    Hero* playerSingleplayerLevel2 = new Hero(glm::vec2(-5.0f, 0.0f));
     Hero* player1MultiplayerLevel1 = new Hero(glm::vec2(-3.0f, 7.0f));
     Hero* player2MultiplayerLevel1 = new Hero(glm::vec2(-5.0f, 11.0f));
     SingleplayerLevelObject* singleplayerLevel1 = new SingleplayerLevelObject(&models.find("level1")->second, "Levels/SingleplayerLevels/Level1.txt", camera, SCR_WIDTH, SCR_HEIGHT);
@@ -67,65 +67,17 @@ void Game::loadObjects() {
     singleplayerLevel1->m_pWorld->addRigidBody(singleplayerLevel1->hero->object->physicsObject->pRigidBody);
     singleplayerLevels.push_back(singleplayerLevel1);
 
+    SingleplayerLevelObject* singleplayerLevel2 = new SingleplayerLevelObject(&models.find("level2")->second, "Levels/SingleplayerLevels/Level2.txt", camera, SCR_WIDTH, SCR_HEIGHT);
+    singleplayerLevel2->hero = playerSingleplayerLevel2;
+    singleplayerLevel2->m_pWorld->addRigidBody(singleplayerLevel2->hero->object->physicsObject->pRigidBody);
+    singleplayerLevels.push_back(singleplayerLevel2);
+
     MultiplayerLevelObject* multiplayerLevel1 = new MultiplayerLevelObject(&models.find("level3")->second, "Levels/MultiplayerLevels/Level1.txt", camera, SCR_WIDTH, SCR_HEIGHT, shaders.find("objectShader2")->second);
     multiplayerLevel1->hero = player1MultiplayerLevel1;
     multiplayerLevel1->hero2 = player2MultiplayerLevel1;
     multiplayerLevel1->m_pWorld->addRigidBody(multiplayerLevel1->hero->object->physicsObject->pRigidBody);
     multiplayerLevel1->m_pWorld->addRigidBody(multiplayerLevel1->hero2->object->physicsObject->pRigidBody);
     multiplayerLevels.push_back(multiplayerLevel1);
-    //DoorObject* door = new DoorObject(glm::vec2(-1.7f, 7.0f));
-    //DoorObject* door2 = new DoorObject(glm::vec2(-1.2f, 10.5f));
-    //DoorObject* door3 = new DoorObject(glm::vec2(0.0f, 10.5f));
-    //DoorObject* door4 = new DoorObject(glm::vec2(6.0f, 7.0f));
-    //DoorObject* door5 = new DoorObject(glm::vec2(4.0f, 10.5f));
-    //LeverObject* lever = new LeverObject(glm::vec2(-3.5f, 6.0f));
-    //LeverObject* lever2 = new LeverObject(glm::vec2(2.0f, 10.0f));
-    //LeverObject* lever3 = new LeverObject(glm::vec2(-5.5f, -1.5f));
-    //PressurePlateObject* pressurePlate = new PressurePlateObject(glm::vec2(8.0f, 5.15f));
-    //PressurePlateObject* pressurePlate2 = new PressurePlateObject(glm::vec2(7.0f, 5.15f));
-    //lever->bind(door);
-    //pressurePlate->bind(door2);
-    //lever2->bind(door4);
-    //lever3->bind(door3);
-    //pressurePlate2->bind(door5);
-    //LightObject* light = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
-    //LightObject* light2 = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
-    //LightObject* light3 = new LightObject(glm::vec3(4.0f, 12.0f, 50.0f));
-    //ChestObject* chest = new ChestObject(glm::vec3(1.0f, 10.0f, 0.0f));
-
-
-    ////first singleplayerLevel
-    //SingleplayerLevelObject* singleplayerLevel1 = new SingleplayerLevelObject(&models.find("level1")->second, glm::vec2(-3.0f,11.0f), camera, SCR_WIDTH, SCR_HEIGHT);
-    //singleplayerLevel1->doors.push_back(door);
-    //singleplayerLevel1->doors.push_back(door2);
-    //singleplayerLevel1->levers.push_back(lever);
-    //singleplayerLevel1->pressurePlates.push_back(pressurePlate);
-    //singleplayerLevel1->chests.push_back(chest);
-    //singleplayerLevel1->lights.push_back(light);
-    //singleplayerLevel1->hero = playerSingleplayerLevel1;
-    //singleplayerLevel1->loadLevel();
-    //singleplayerLevels.push_back(singleplayerLevel1);
-
-    ////second singleplayerLevel
-    //SingleplayerLevelObject* singleplayerLevel2 = new SingleplayerLevelObject(&models.find("level2")->second, glm::vec2(-1.0f, 9.0f), camera, SCR_WIDTH, SCR_HEIGHT);
-    //singleplayerLevel2->hero = playerSingleplayerLevel2;
-    //singleplayerLevel2->lights.push_back(light2);
-    //singleplayerLevel2->loadLevel();
-    //singleplayerLevels.push_back(singleplayerLevel2);
-
-    ////first multiplayerLevel
-    //MultiplayerLevelObject* multiplayerLevel1 = new MultiplayerLevelObject(&models.find("level3")->second, glm::vec2(6.0f, 10.0f), camera, SCR_WIDTH, SCR_HEIGHT, shaders.find("objectShader2")->second);
-    //multiplayerLevel1->doors.push_back(door3);
-    //multiplayerLevel1->doors.push_back(door4);
-    //multiplayerLevel1->doors.push_back(door5);
-    //multiplayerLevel1->hero = player1MultiplayerLevel1;
-    //multiplayerLevel1->hero2 = player2MultiplayerLevel1;
-    //multiplayerLevel1->levers.push_back(lever2);
-    //multiplayerLevel1->levers.push_back(lever3);
-    //multiplayerLevel1->pressurePlates.push_back(pressurePlate2);
-    //multiplayerLevel1->lights.push_back(light3);
-    //multiplayerLevel1->loadLevel();
-    //multiplayerLevels.push_back(multiplayerLevel1);
 }
 
 void Game::loadFonts()
@@ -226,11 +178,6 @@ void Game::toggleDebug() {
             debugEnabled = !debugEnabled;
         }
     }
-    if (Debug) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-    else
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 void Game::processInput()
@@ -247,23 +194,25 @@ void Game::processInput()
             if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS)
                 camera->ProcessKeyboard(RIGHT, deltaTime);
             if (actualKey == Key_1)
-                actualLevel->addTemporaryObject(1); //CHEST
+                actualLevel->addTemporaryObject(CHEST); //CHEST
             if (actualKey == Key_2)
-                actualLevel->addTemporaryObject(2); //LEVER AND DOORS
+                actualLevel->addTemporaryObject(LEVER); //LEVER AND DOORS
             if (actualKey == Key_3)
-                actualLevel->addTemporaryObject(3); //LEVER AND PRESSUREPLATES
-            if (actualKey == Key_UP && actualLevel->newObjects[0])
-                actualLevel->newObjects[0]->move(1);
-            if (actualKey == Key_DOWN && actualLevel->newObjects[0])
-                actualLevel->newObjects[0]->move(2);
-            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && actualLevel->newObjects[0])
-                actualLevel->newObjects[0]->move(3);
-            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && actualLevel->newObjects[0])
-                actualLevel->newObjects[0]->move(4);
-            if (actualKey == Key_ENTER)
-                actualLevel->addObject();
-            if (actualKey == Key_S)
-                actualLevel->saveLevel();
+                actualLevel->addTemporaryObject(PRESSURE_PLATE); //LEVER AND PRESSUREPLATES
+            if (actualLevel->newObjects.size() > 0) {
+                if (actualKey == Key_UP)
+                    actualLevel->newObjects.back()->move(1);
+                if (actualKey == Key_DOWN)
+                    actualLevel->newObjects.back()->move(2);
+                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+                    actualLevel->newObjects.back()->move(3);
+                if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+                    actualLevel->newObjects.back()->move(4);
+                if (actualKey == Key_ENTER)
+                    actualLevel->addObject();
+                if (actualKey == Key_S)
+                    actualLevel->saveLevel();
+            }
             }
     else {
         //first player move
@@ -442,19 +391,6 @@ void Game::mouse_callback(GLFWwindow* window, double xpos, double ypos)
         camera->ProcessMouseMovement(xoffset, yoffset);
     }
 }
-
-//void Game::mouse_click(GLFWwindow* window, int button, int action, int mods) {
-//    if (Debug) {
-//        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-//        {
-//            glm::vec3 lookAtVec = camera->GetViewMatrix() * glm::vec4(camera->Position,0);
-//            ChestObject* chest = new ChestObject(glm::vec2(lookAtVec.x, lookAtVec.y), 0.0f);
-//            chest->object->graphicsObject->debug = true;
-//            actualLevel->addTemporaryObject(chest);
-//            actualLevel->newObject = chest->object;
-//        }
-//    }
-//}
 
 void Game::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
